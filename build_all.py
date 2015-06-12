@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 from __future__ import print_function, division
-import os, re, sys, inspect, subprocess
+import os, re, six, sys, inspect, subprocess
+
+packages = ('astyle', 'fftw', 'eigen', 'gpi-framework', 'gpi-core-nodes')
 
 # cli options
 class parseargs():
@@ -11,15 +13,17 @@ class parseargs():
         self.force_upload = ('--force-upload' in sys.argv) or ('-f' in sys.argv)
         #   Force upload even if the file already exists on anaconda.org.
 
-        self.gpi_channel = ('--gpi-channel' in sys.argv) or ('-gpi' in sys.argv)
-        #   Use the gpi channel (by default the user channel is used).  This
-        #   will be used for uploads and build dependencies.
+        self.use_channel = ('--channel' in sys.argv) or ('-c' in sys.argv)
+        #   Use the specified channel: -c <channel>
 
         self.auto_upload = ('--auto-upload' in sys.argv) or ('-u' in sys.argv)
         #   Upload each file on a successful build (uses anaconda client).
 
         self.skip_built = ('--skip-built' in sys.argv) or ('-s' in sys.argv)
         #   Don't try to build the package if the tarball already exists.
+
+        self.target_package = ('--package' in sys.argv) or ('-p' in sys.argv)
+        #   Specify a package to build, (ignores the rest of the list).
 
         self.py_ver = 35 # (default)
         if ('--py27' in sys.argv) or ('-2' in sys.argv):
@@ -28,45 +32,68 @@ class parseargs():
 
         if ('--help' in sys.argv) or ('-h' in sys.argv):
         #   This help.
-            (print(self), sys.exit(0))
+            (print(self.help()), sys.exit(0))
 
-    def __str__(self):
-        lines = [re.sub('[\'()#]|self\.| in sys\.argv|^.*sys\.exit.*$','',l)
+    def help(self):
+        lines = [re.sub(r'[\'()#]|self\.| in sys\.argv|^.*sys\.exit.*$','',l)
                 for l in inspect.getsourcelines(self.__init__)[0]]
         lines[0] = 'usage '+sys.argv[0]+' [options]\n'
         return ''.join(lines)
 
+    def channel(self):
+        if self.use_channel:
+            m = re.search(r'(-c|--channel)\s+(\w+)\s*', ' '.join(sys.argv))
+            if m: return m.group(2)
+
+    def package(self):
+        if self.target_package:
+            m = re.search(r'(-p|--package)\s+([\w-]+)\s*', ' '.join(sys.argv))
+            if m: return m.group(2)
+
 a = parseargs()
 os.environ['CONDA_PY'] = str(a.py_ver)
 
-for dirname in ('astyle', 'fftw', 'eigen', 'gpi-framework', 'gpi-core-nodes'):
+if a.target_package:
+    if a.package() in packages:
+        packages = [a.package()]
+    else:
+        print(a.package(), ' is not a valid package name, abort.')
+        sys.exit(1)
+
+for dirname in packages:
     print(dirname)
     if os.path.isdir(dirname) and not dirname.startswith('.'):
+
+        if dirname == 'astyle' and a.py_ver == 35 and sys.platform == 'linux':
+            print('Astyle needs to be built with python2.7 on Linux, skipping...')
+            continue
 
         ## ASSEMBLE COMMANDS
         # BUILD COMMAND
         conda_build = ['conda', 'build', dirname,
                        '--python {}'.format(a.py_ver/10.), '--no-anaconda-upload']
+        if a.use_channel:
+            conda_build.append('-c '+a.channel())
         build_command = ' '.join(conda_build)
 
         # UPLOAD COMMAND
         # split out the upload from the build so we have more control
         pkgname = subprocess.Popen(build_command + ' --output', shell=True,
                 stdout=subprocess.PIPE).stdout.read().strip()
+        pkgname = pkgname.decode('ascii') # required by py3
         anaconda_upload = ['anaconda', 'upload', pkgname]
-
-        if a.gpi_channel: # this default to the USER channel
-            anaconda_upload.append('-c gpi')
-            # build deps will require the gpi channel to be in the env
-            subprocess.call('conda config --add channels gpi', shell=True)
-        if a.force_upload:
-            anaconda_upload.append('--force')
-        upload_command = ' '.join(anaconda_upload)
 
         if a.skip_built:
             if os.path.isfile(pkgname):
                 print('\t', dirname, ' is already built, skipping...')
                 continue
+
+        # build deps will require the gpi channel to be in the env
+        if a.use_channel:
+            anaconda_upload.append('-c '+a.channel())
+        if a.force_upload:
+            anaconda_upload.append('--force')
+        upload_command = ' '.join(anaconda_upload)
 
         ## EXECUTE COMMANDS
         # BUILD

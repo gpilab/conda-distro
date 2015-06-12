@@ -12,7 +12,8 @@ class parseargs():
         # Force upload even if the file already exists on anaconda.org.
 
         self.gpi_channel = ('--gpi-channel' in sys.argv) or ('-gpi' in sys.argv)
-        # Use the gpi channel (by default the user channel is used).
+        # Use the gpi channel (by default the user channel is used).  This will
+        # be used for uploads and build dependencies.
 
         self.auto_upload = ('--auto-upload' in sys.argv) or ('-u' in sys.argv)
         # Upload each file on a successful build (uses anaconda client).
@@ -62,6 +63,8 @@ for dirname in ('astyle', 'fftw', 'eigen', 'gpi-framework', 'gpi-core-nodes'):
 
         if a.gpi_channel: # this default to the USER channel
             anaconda_upload.append('-c gpi')
+            # build deps will require the gpi channel to be in the env
+            subprocess.call('conda config --add channels gpi', shell=True)
         if a.force_upload:
             anaconda_upload.append('--force')
         upload_command = ' '.join(anaconda_upload)

@@ -6,7 +6,7 @@
  CXX = g++
 +#INSTALL=install -o $(USER) -g $(USER)
 +$(info $$USER is [${USER}])
-+INSTALL=install -o 0 -g 0
++INSTALL=install
 -INSTALL=install -o $(USER) -g $(USER)
  
 +

@@ -6,40 +6,34 @@ import os, re, sys, inspect, subprocess
 class parseargs():
     def __init__(self):
         self.dry_run = ('--dry-run' in sys.argv)
-        # Show the assembled commands.
+        #   Show the assembled commands.
 
         self.force_upload = ('--force-upload' in sys.argv) or ('-f' in sys.argv)
-        # Force upload even if the file already exists on anaconda.org.
+        #   Force upload even if the file already exists on anaconda.org.
 
         self.gpi_channel = ('--gpi-channel' in sys.argv) or ('-gpi' in sys.argv)
-        # Use the gpi channel (by default the user channel is used).  This will
-        # be used for uploads and build dependencies.
+        #   Use the gpi channel (by default the user channel is used).  This
+        #   will be used for uploads and build dependencies.
 
         self.auto_upload = ('--auto-upload' in sys.argv) or ('-u' in sys.argv)
-        # Upload each file on a successful build (uses anaconda client).
+        #   Upload each file on a successful build (uses anaconda client).
 
         self.skip_built = ('--skip-built' in sys.argv) or ('-s' in sys.argv)
-        # Don't try to build the package if the tarball already exists.
+        #   Don't try to build the package if the tarball already exists.
 
         self.py_ver = 35 # (default)
         if ('--py27' in sys.argv) or ('-2' in sys.argv):
             self.py_ver = 27
-        # Choose the version of python 2.7 or 3.5.
+        #   Choose the version of python 2.7 or 3.5.
 
         if ('--help' in sys.argv) or ('-h' in sys.argv):
-        # This help.
+        #   This help.
             (print(self), sys.exit(0))
 
     def __str__(self):
-        lines = inspect.getsourcelines(self.__init__)[0]
-        lines = lines[1:]
-        lines = [l.replace('self.', '') for l in lines]
-        lines = [l.replace(' in sys.argv)', '') for l in lines]
-        lines = [l.replace('(\'', '') for l in lines]
-        lines = [l.replace('\'', '') for l in lines]
-        lines = [l.replace('#', '\t') for l in lines]
-        lines = [l for l in lines if not l.count('sys.exit')]
-        lines.insert(0, 'usage '+sys.argv[0]+' [options]\n')
+        lines = [re.sub('[\'()#]|self\.| in sys\.argv|^.*sys\.exit.*$','',l)
+                for l in inspect.getsourcelines(self.__init__)[0]]
+        lines[0] = 'usage '+sys.argv[0]+' [options]\n'
         return ''.join(lines)
 
 a = parseargs()

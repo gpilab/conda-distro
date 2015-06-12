@@ -46,8 +46,8 @@ for dirname in ('astyle', 'fftw', 'eigen', 'gpi-framework', 'gpi-core-nodes'):
             subprocess.call(build_command, shell=True)
 
             if not os.path.isfile(pkgname):
-                print('Build FAILED for package: ', dirname)
-                print('\tThe following file doesn\'t exist: ', pkgname)
+                print('\n\nBuild FAILED for package: ', dirname)
+                print('\tThe following file doesn\'t exist: ', pkgname, '\n\n')
                 sys.exit(1)
 
         # UPLOAD

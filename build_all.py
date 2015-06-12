@@ -2,7 +2,7 @@
 from __future__ import print_function, division
 import os, re, six, sys, inspect, subprocess
 
-packages = ('astyle', 'fftw', 'eigen', 'gpi-framework', 'gpi-core-nodes')
+packages = ('astyle', 'fftw', 'eigen', 'gpi-framework', 'gpi-core-nodes', 'qimage2ndarray')
 
 # cli options
 class parseargs():
@@ -90,7 +90,7 @@ for dirname in packages:
 
         # build deps will require the gpi channel to be in the env
         if a.use_channel:
-            anaconda_upload.append('-c '+a.channel())
+            anaconda_upload.append('-u '+a.channel())
         if a.force_upload:
             anaconda_upload.append('--force')
         upload_command = ' '.join(anaconda_upload)

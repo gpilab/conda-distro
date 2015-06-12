@@ -9,8 +9,9 @@ force_upload = ('--force-upload' in sys.argv) or ('-f' in sys.argv)
 gpi_channel = ('--gpi-channel' in sys.argv) or ('-gpi' in sys.argv)
 auto_upload = ('--auto-upload' in sys.argv) or ('-u' in sys.argv)
 skip_built = ('--skip-built' in sys.argv) or ('-s' in sys.argv)
-
-py_ver = int(input("Enter Python ver as a two-digit number (e.g. 27, or 35): "))
+py_ver = 35 # default
+if ('--py27' in sys.argv) or ('-2' in sys.argv):
+    py_ver = 27
 os.environ['CONDA_PY'] = str(py_ver)
 
 for dirname in ('astyle', 'fftw', 'eigen', 'gpi-framework', 'gpi-core-nodes'):

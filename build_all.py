@@ -13,6 +13,9 @@ while True:
         break
     elif upload_pkgs.lower() in ('y', 'yes', ''):
         upload_pkgs = ''
+	# Since there isn't a way to force this thru the cli we have to make
+	# sure its set.
+	subprocess.call('conda config --set anaconda_upload yes', shell=True)
         break
     else:
         print("Invalid input, please enter 'y' or 'n'.")

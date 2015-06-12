@@ -9,8 +9,10 @@ source:
 requirements:
   build:
     - gpi >=0.6.0
+    - python >=3.4
   run: # keep these strict for now
     - gpi >=0.6.0
+    - python >=3.4
 
 build:
   number: 0

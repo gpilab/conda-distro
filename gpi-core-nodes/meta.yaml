@@ -5,7 +5,8 @@ package:
 source:
   git_rev: py3k # [py3k]
   git_rev: develop # [py2k]
-  git_url: http://docbrown.local/kcii/core-nodes-github.git
+  git_url: git@docbrown.local:kcii/core-nodes-github.git
+  #git_url: http://docbrown.local/kcii/core-nodes-github.git
 
 requirements:
   build:

@@ -6,7 +6,8 @@ package:
 source:
   git_rev: py3k # [py3k]
   git_rev: py2k # [py2k]
-  git_url: http://docbrown.local/kcii/framework-github.git
+  git_url: git@docbrown.local:kcii/framework-github.git
+  #git_url: http://docbrown.local/kcii/framework-github.git
 
 requirements:
   run: # keep these strict for now

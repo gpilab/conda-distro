@@ -1,18 +1,48 @@
 #!/usr/bin/env python
 from __future__ import print_function, division
-from six.moves import input
-import os, sys, subprocess
+import os, re, sys, inspect, subprocess
 
 # cli options
-dry_run = '--dry-run' in sys.argv
-force_upload = ('--force-upload' in sys.argv) or ('-f' in sys.argv)
-gpi_channel = ('--gpi-channel' in sys.argv) or ('-gpi' in sys.argv)
-auto_upload = ('--auto-upload' in sys.argv) or ('-u' in sys.argv)
-skip_built = ('--skip-built' in sys.argv) or ('-s' in sys.argv)
-py_ver = 35 # default
-if ('--py27' in sys.argv) or ('-2' in sys.argv):
-    py_ver = 27
-os.environ['CONDA_PY'] = str(py_ver)
+class parseargs():
+    def __init__(self):
+        self.dry_run = '--dry-run' in sys.argv
+        # just show the assembled commands
+
+        self.force_upload = ('--force-upload' in sys.argv) or ('-f' in sys.argv)
+        # force upload even if the file already exists on anaconda.org
+
+        self.gpi_channel = ('--gpi-channel' in sys.argv) or ('-gpi' in sys.argv)
+        # use the gpi channel (by default the user channel is used)
+
+        self.auto_upload = ('--auto-upload' in sys.argv) or ('-u' in sys.argv)
+        # upload each file on a successful build (uses anaconda client)
+
+        self.skip_built = ('--skip-built' in sys.argv) or ('-s' in sys.argv)
+        # don't try to build a tarbal if it already exists
+
+        self.py_ver = 35 # default
+        if ('--py27' in sys.argv) or ('-2' in sys.argv):
+            self.py_ver = 27
+        # choose the version of python 2.7 or 3.5
+
+        if ('--help' in sys.argv) or ('-h' in sys.argv):
+        # this help
+            (print(self), sys.exit(0))
+
+    def __str__(self):
+        lines = inspect.getsourcelines(self.__init__)[0]
+        lines = lines[1:]
+        lines = [l.replace('self.', '') for l in lines]
+        lines = [l.replace(' in sys.argv', '') for l in lines]
+        lines = [l.replace('\'', '') for l in lines]
+        lines = [l.replace('(', '') for l in lines]
+        lines = [l.replace(')', '') for l in lines]
+        lines = [l.replace('#', '\t') for l in lines]
+        lines.insert(0, 'usage '+sys.argv[0]+' [options]\n')
+        return ''.join(lines)
+
+a = parseargs()
+os.environ['CONDA_PY'] = str(a.py_ver)
 
 for dirname in ('astyle', 'fftw', 'eigen', 'gpi-framework', 'gpi-core-nodes'):
     print(dirname)
@@ -21,7 +51,7 @@ for dirname in ('astyle', 'fftw', 'eigen', 'gpi-framework', 'gpi-core-nodes'):
         ## ASSEMBLE COMMANDS
         # BUILD COMMAND
         conda_build = ['conda', 'build', dirname,
-                       '--python {}'.format(py_ver/10.), '--no-anaconda-upload']
+                       '--python {}'.format(a.py_ver/10.), '--no-anaconda-upload']
         build_command = ' '.join(conda_build)
 
         # UPLOAD COMMAND
@@ -30,20 +60,21 @@ for dirname in ('astyle', 'fftw', 'eigen', 'gpi-framework', 'gpi-core-nodes'):
                 stdout=subprocess.PIPE).stdout.read().strip()
         anaconda_upload = ['anaconda', 'upload', pkgname]
 
-        if gpi_channel: # this default to the USER channel
+        if a.gpi_channel: # this default to the USER channel
             anaconda_upload.append('-c gpi')
-        if force_upload:
+        if a.force_upload:
             anaconda_upload.append('--force')
         upload_command = ' '.join(anaconda_upload)
 
-        if skip_built:
+        if a.skip_built:
             if os.path.isfile(pkgname):
+                print('\t', dirname, ' is already built, skipping...')
                 continue
 
         ## EXECUTE COMMANDS
         # BUILD
         print(build_command)
-        if not dry_run:
+        if not a.dry_run:
             subprocess.call(build_command, shell=True)
 
             if not os.path.isfile(pkgname):
@@ -52,7 +83,7 @@ for dirname in ('astyle', 'fftw', 'eigen', 'gpi-framework', 'gpi-core-nodes'):
                 sys.exit(1)
 
         # UPLOAD
-        if auto_upload:
+        if a.auto_upload:
             print(upload_command)
-            if not dry_run:
+            if not a.dry_run:
                 subprocess.call(upload_command, shell=True)

@@ -2,7 +2,7 @@
 from __future__ import print_function, division
 import os, re, six, sys, inspect, subprocess
 
-packages = ('astyle', 'fftw', 'eigen', 'gpi-framework', 'gpi-core-nodes', 'qimage2ndarray')
+packages = ('astyle', 'fftw', 'eigen', 'qimage2ndarray', 'gpi-framework', 'gpi-core-nodes', 'gpi-docs')
 
 # cli options
 class parseargs():
@@ -66,6 +66,7 @@ for dirname in packages:
 
         if dirname == 'astyle' and a.py_ver == 35 and sys.platform == 'linux':
             print('Astyle needs to be built with python2.7 on Linux, skipping...')
+            print('   $ '+sys.argv[0]+' -2 -p astyle')
             continue
 
         ## ASSEMBLE COMMANDS

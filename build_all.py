@@ -5,39 +5,39 @@ import os, re, sys, inspect, subprocess
 # cli options
 class parseargs():
     def __init__(self):
-        self.dry_run = '--dry-run' in sys.argv
-        # just show the assembled commands
+        self.dry_run = ('--dry-run' in sys.argv)
+        # Show the assembled commands.
 
         self.force_upload = ('--force-upload' in sys.argv) or ('-f' in sys.argv)
-        # force upload even if the file already exists on anaconda.org
+        # Force upload even if the file already exists on anaconda.org.
 
         self.gpi_channel = ('--gpi-channel' in sys.argv) or ('-gpi' in sys.argv)
-        # use the gpi channel (by default the user channel is used)
+        # Use the gpi channel (by default the user channel is used).
 
         self.auto_upload = ('--auto-upload' in sys.argv) or ('-u' in sys.argv)
-        # upload each file on a successful build (uses anaconda client)
+        # Upload each file on a successful build (uses anaconda client).
 
         self.skip_built = ('--skip-built' in sys.argv) or ('-s' in sys.argv)
-        # don't try to build a tarbal if it already exists
+        # Don't try to build the package if the tarball already exists.
 
-        self.py_ver = 35 # default
+        self.py_ver = 35 # (default)
         if ('--py27' in sys.argv) or ('-2' in sys.argv):
             self.py_ver = 27
-        # choose the version of python 2.7 or 3.5
+        # Choose the version of python 2.7 or 3.5.
 
         if ('--help' in sys.argv) or ('-h' in sys.argv):
-        # this help
+        # This help.
             (print(self), sys.exit(0))
 
     def __str__(self):
         lines = inspect.getsourcelines(self.__init__)[0]
         lines = lines[1:]
         lines = [l.replace('self.', '') for l in lines]
-        lines = [l.replace(' in sys.argv', '') for l in lines]
+        lines = [l.replace(' in sys.argv)', '') for l in lines]
+        lines = [l.replace('(\'', '') for l in lines]
         lines = [l.replace('\'', '') for l in lines]
-        lines = [l.replace('(', '') for l in lines]
-        lines = [l.replace(')', '') for l in lines]
         lines = [l.replace('#', '\t') for l in lines]
+        lines = [l for l in lines if not l.count('sys.exit')]
         lines.insert(0, 'usage '+sys.argv[0]+' [options]\n')
         return ''.join(lines)
 

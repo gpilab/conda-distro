@@ -1,0 +1,13 @@
+--- build/mac/Makefile 2015-09-16 17:36:00.000000000 -0700
++++ build/mac/Makefile 2015-09-16 17:37:02.000000000 -0700
+@@ -40,8 +40,9 @@
+ UNIVFLAGS = -arch i386 -arch x86_64
+ JAVAINCS   = -I/System/Library/Frameworks/JavaVM.framework/Headers
+ CXX = clang++
+-INSTALL=install -o $(USER) -g wheel
++# INSTALL=install -o $(USER) -g wheel
+ # INSTALL=install -o 0 -g 0
++INSTALL=install
+ 
+ # set debug directories for DEBUG=1 on the command line
+ ifdef DEBUG

@@ -1,0 +1,20 @@
+package:
+  name: gpi 
+  version: "0.5.0.n1"
+ 
+source:
+  git_rev: v0.5.0-n1
+  git_url: https://github.com/gpilab/framework.git
+
+requirements:
+  run:
+    - python <3
+
+build:
+  number: 0
+
+about:
+  home: http://gpilab.com
+  license: GPLv3 
+  license_file: LICENSE
+  summary: "GPI - Graphical Programming Interface Development Framework"

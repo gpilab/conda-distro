@@ -1,10 +1,13 @@
 package:
-  name: gpi 
-  version: "0.6.0.n2"
- 
+  name: gpi
+  version: "0.6.0.n1"
+
 source:
-  git_rev: 7e6a8ae1
+  git_rev: 57b927e
   git_url: http://docbrown.local/kcii/framework-github.git
+  patches:
+    - gpi.patch
+    - gpi_make.patch
 
 requirements:
   run: # keep these strict for now
@@ -14,6 +17,7 @@ requirements:
     - matplotlib 1.4.*
     - qt >4.8,<5
     - pyqt >4.8,<5
+    - pyopengl 3.*
     - astyle >2,<3
     - eigen 3.2.5
     - fftw 3.3.4
@@ -23,7 +27,7 @@ build:
 
 about:
   home: http://gpilab.com
-  license: GPLv3 
+  license: GPLv3
   license_file: LICENSE
   summary: "GPI - Graphical Programming Interface Development Framework"
 

@@ -1,0 +1,23 @@
+package:
+  name: gpi-core-nodes
+  version: "0.6.0.n1"
+ 
+source:
+  git_rev: 4939552 
+  git_url: http://docbrown.local/kcii/core-nodes-github.git
+
+requirements:
+  build:
+    - gpi *n1
+  run: # keep these strict for now
+    - gpi *n1
+
+build:
+  number: 0
+
+about:
+  home: https://github.com/gpilab/core-nodes
+  license: GPLv3 
+  license_file: LICENSE
+  summary: "Core nodes for the GPI development framework"
+

@@ -3,7 +3,7 @@ package:
   version: "0.6.0.n1"
 
 source:
-  git_rev: df687bf
+  git_rev: conda-package
   git_url: http://docbrown.local/kcii/framework-github.git
   patches:
     - gpi.patch
@@ -22,13 +22,14 @@ requirements:
     - astyle >2,<3
     - eigen 3.2.5
     - fftw 3.3.4
+    - h5py
+    # pip qimage2ndarray
 
 build:
-  number: 0
+  number: 1
 
 about:
   home: http://gpilab.com
   license: GPLv3
   license_file: LICENSE
   summary: "GPI - Graphical Programming Interface Development Framework"
-

@@ -1,21 +1,17 @@
---- bin/gpi_make	2015-09-18 10:59:10.000000000 -0700
-+++ bin/gpi_make	2015-09-18 10:58:53.000000000 -0700
-@@ -26,8 +26,8 @@
-
+--- bin/gpi_make	2015-09-18 14:56:06.000000000 -0700
++++ bin/gpi_make	2015-09-18 14:56:28.000000000 -0700
+@@ -1,4 +1,3 @@
+-#!/usr/bin/env python
+ #!/opt/anaconda1anaconda2anaconda3/bin/python # ANACONDA
+ 
+ #    Copyright (C) 2014  Dignity Health
+@@ -27,8 +26,7 @@
+ 
  import sys, os
-
+ 
 -# GPI_PREFIX = '/opt/anaconda1anaconda2anaconda3' # ANACONDA
 -GPI_PREFIX, _ = os.path.split(os.path.dirname(os.path.realpath(__file__)))
 +GPI_PREFIX = '/opt/anaconda1anaconda2anaconda3' # ANACONDA
-+# GPI_PREFIX, _ = os.path.split(os.path.dirname(os.path.realpath(__file__)))
  GPI_LIB_DIR = os.path.join(GPI_PREFIX, 'lib')
  if GPI_LIB_DIR not in sys.path:
      sys.path.insert(0, GPI_LIB_DIR)
-@@ -36,5 +36,5 @@
- from gpi import make
-
- if __name__ == '__main__':
--    # make.make() # ANACONDA
--    make.make(GPI_PREFIX)
-+    make.make() # ANACONDA
-+    # make.make(GPI_PREFIX)

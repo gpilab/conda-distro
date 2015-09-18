@@ -1,9 +1,9 @@
 package:
   name: gpi
-  version: "0.6.0.n1"
+  version: "0.6.0"
 
 source:
-  git_rev: df687bf
+  git_rev: 3f58c347ca72bcf669c4224efe7671ee16120b7c
   git_url: http://docbrown.local/kcii/framework-github.git
   patches:
     - gpi.patch
@@ -11,7 +11,7 @@ source:
 
 requirements:
   run: # keep these strict for now
-    - python >=2.6,<3
+    - python >=3.4
     - numpy 1.9.*
     - scipy 0.16.0
     - matplotlib 1.4.*
@@ -24,7 +24,7 @@ requirements:
     - fftw 3.3.4
 
 build:
-  number: 0
+  number: 1
 
 about:
   home: http://gpilab.com

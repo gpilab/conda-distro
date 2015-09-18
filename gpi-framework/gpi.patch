@@ -1,5 +1,5 @@
---- bin/gpi	2015-09-18 14:53:39.000000000 -0700
-+++ bin/gpi	2015-09-18 14:54:02.000000000 -0700
+--- bin/gpi_launch	2015-09-18 14:53:39.000000000 -0700
++++ bin/gpi_launch	2015-09-18 14:54:02.000000000 -0700
 @@ -1,4 +1,3 @@
 -#!/usr/bin/env python
  #!/opt/anaconda1anaconda2anaconda3/bin/python # ANACONDA

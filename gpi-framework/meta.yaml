@@ -3,7 +3,7 @@ package:
   version: "0.6.0"
 
 source:
-  git_rev: 3f58c347ca72bcf669c4224efe7671ee16120b7c
+  git_rev: py3k
   git_url: http://docbrown.local/kcii/framework-github.git
   patches:
     - gpi.patch
@@ -22,13 +22,15 @@ requirements:
     - astyle >2,<3
     - eigen 3.2.5
     - fftw 3.3.4
+    - h5py
+    - qimage2ndarray
 
 build:
-  number: 1
+  number: 3
+#  string: py3k
 
 about:
   home: http://gpilab.com
   license: GPLv3
   license_file: LICENSE
   summary: "GPI - Graphical Programming Interface Development Framework"
-

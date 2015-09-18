@@ -23,7 +23,7 @@ requirements:
     - eigen 3.2.5
     - fftw 3.3.4
     - h5py
-    # pip qimage2ndarray
+    - qimage2ndarray
 
 build:
   number: 1

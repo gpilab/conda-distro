@@ -1,5 +1,5 @@
 # GPI Conda Packages and Dependencies
-Conda packaging for serving on [Anaconda.org](Anaconda.org).
+Conda packaging for serving on [Anaconda.org](http://Anaconda.org).
 
 ## Conda Build/Upload
 
@@ -50,3 +50,7 @@ To clone the environment (also takes the -n option for specifying the env):
 To create the environment from an environment spec file:
 
     $ conda env create -f <name>.yml
+
+## ~/.condarc
+You can find a good exmaple at [https://github.com/conda/conda/blob/master/tests/condarc](https://github.com/conda/conda/blob/master/tests/condarc).
+

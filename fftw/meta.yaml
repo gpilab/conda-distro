@@ -18,3 +18,4 @@ about:
   home: http://www.fftw.org
   license: GPLv2
   license_file: COPYRIGHT
+  summary: "The Fastest Fourier Transform in the West"

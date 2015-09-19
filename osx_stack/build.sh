@@ -31,9 +31,10 @@ cp -r $REF $DEST/
 echo "Downloading and Installing MiniConda..."
 ./install_miniconda.sh $MINICONDA_PATH
 
-# install gpi
-echo "Installing GPI and dependencies..."
-$CONDA install -y -c gpi gpi
+# Install Conda Packages
+echo "Installing GPI and the root packages..."
+$CONDA install -y -c gpi --file ./rootenv.txt
+
 echo "Removing package files..."
 $CONDA clean -t -i -p -l -y 
 

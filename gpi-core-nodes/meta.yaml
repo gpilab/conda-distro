@@ -1,6 +1,6 @@
 package:
   name: gpi-core-nodes
-  version: "0.6.0.n1"
+  version: "0.6.0"
 
 source:
   git_rev: py3k
@@ -9,10 +9,10 @@ source:
 requirements:
   build:
     - python >=3.4
-    - gpi *n1
+    - gpi >=0.6.0
   run: # keep these strict for now
     - python >=3.4
-    - gpi *n1
+    - gpi >=0.6.0
 
 build:
   number: 0

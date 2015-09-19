@@ -1,0 +1,23 @@
+package:
+  name: gpi-docs
+  version: "0.6.0"
+
+source:
+  git_rev: master
+  git_url: https://github.com/gpilab/gpilab.github.io.git
+
+requirements:
+  build:
+    - gpi >=0.6.0
+  run: # keep these strict for now
+    - gpi >=0.6.0
+
+build:
+  number: 0
+  detect_binary_files_with_prefix: True
+
+about:
+  home: http://docs.gpilab.com
+  license: GPLv3
+  license_file: LICENSE
+  summary: "GPI Documentation"

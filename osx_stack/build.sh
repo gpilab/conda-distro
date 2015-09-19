@@ -32,5 +32,9 @@ echo "Downloading and Installing MiniConda..."
 ./install_miniconda.sh $MINICONDA_PATH
 
 # install gpi
-echo "installing GPI and dependencies..."
+echo "Installing GPI and dependencies..."
 $CONDA install -y -c gpi gpi
+echo "Removing package files..."
+$CONDA clean -t -i -p -l -y 
+
+echo "Done."

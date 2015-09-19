@@ -1,5 +1,5 @@
 # GPI Conda Packages and Dependencies
-Conda packaging for serving on [Anaconda.org](http://Anaconda.org).
+Conda packaging for serving on [Anaconda.org/gpi](http://Anaconda.org/gpi).
 
 ## Conda Build/Upload
 

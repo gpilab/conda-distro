@@ -23,11 +23,12 @@ requirements:
     - eigen 3.2.5
     - fftw 3.3.4
     - h5py
-    - qimage2ndarray
+#    - pip:
+#      - qimage2ndarray
 
 build:
-  number: 3
-#  string: py3k
+  number: 4
+  string: py3k
 
 about:
   home: http://gpilab.com

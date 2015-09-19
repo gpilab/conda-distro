@@ -5,9 +5,6 @@ package:
 source:
   git_rev: py3k
   git_url: http://docbrown.local/kcii/framework-github.git
-#  patches:
-#    - gpi.patch
-#    - gpi_make.patch
 
 requirements:
   run: # keep these strict for now
@@ -23,8 +20,7 @@ requirements:
     - eigen 3.2.5
     - fftw 3.3.4
     - h5py
-#    - pip:
-#      - qimage2ndarray
+#    - qimage2ndarray
 
 build:
   number: 5

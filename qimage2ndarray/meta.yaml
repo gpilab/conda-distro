@@ -25,12 +25,12 @@ build:
 
 requirements:
   build:
-    - python >=3.4
+    - python >=3.5 # this is somehow enforced elsewhere so just set it to 3.5 for now
     - setuptools
     - numpy
 
   run:
-    - python >=3.4
+    - python >=3.5
     - numpy
 
 test:

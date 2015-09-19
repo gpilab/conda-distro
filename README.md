@@ -51,6 +51,16 @@ To create the environment from an environment spec file:
 
     $ conda env create -f <name>.yml
 
+## Conda Package List
+To master a conda distro (i.e. the root environment) you need a package list
+instead of an environment.yml.  This file can be generated with:
+
+    $ conda list --export > filelist.txt
+
+To install the files:
+
+    $ conda install --file filelist.txt
+
 ## ~/.condarc
 You can find a good exmaple at [https://github.com/conda/conda/blob/master/tests/condarc](https://github.com/conda/conda/blob/master/tests/condarc).
 

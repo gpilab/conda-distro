@@ -3,20 +3,20 @@ package:
   version: "0.6.0.n1"
 
 source:
-  git_rev: develop
+  git_rev: py3k
   git_url: http://docbrown.local/kcii/core-nodes-github.git
 
 requirements:
   build:
-    - python >=2.6,<3
+    - python >=3.4
     - gpi *n1
   run: # keep these strict for now
-    - python >=2.6,<3
+    - python >=3.4
     - gpi *n1
 
 build:
   number: 0
-  string: py2x
+  string: py3k
   detect_binary_files_with_prefix: True
 
 about:

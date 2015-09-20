@@ -38,4 +38,4 @@ $CONDA install -y -c gpi --file ./rootenv.txt
 echo "Removing package files..."
 $CONDA clean -t -i -p -l -y 
 
-echo "Done."
+echo "Done building the app."

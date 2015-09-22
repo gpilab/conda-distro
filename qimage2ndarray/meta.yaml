@@ -6,37 +6,26 @@ source:
   fn: qimage2ndarray-1.5.tar.gz
   url: https://pypi.python.org/packages/source/q/qimage2ndarray/qimage2ndarray-1.5.tar.gz
   md5: 733e68a04b2cc84ca9f680e37732262f
-#  patches:
-   # List any patch files here
-   # - fix.patch
 
 build:
   number: 0
-  string: py3k
-  # noarch_python: True
-  # preserve_egg_dir: True
-  # entry_points:
-    # Put any entry points (scripts to be generated automatically) here. The
-    # syntax is module:function.  For example
-    #
-    # - qimage2ndarray = qimage2ndarray:main
-    #
-    # Would create an entry point called qimage2ndarray that calls qimage2ndarray.main()
+  string: py{{ environ['CONDA_PY'] }}
 
 requirements:
   build:
-    - python >=3.5 # this is somehow enforced elsewhere so just set it to 3.5 for now
+    - python >=3.4 # [py3k]
+    - python >=2.6,<3 # [py2k]
     - setuptools
     - numpy
 
   run:
-    - python >=3.5
+    - python >=3.4 # [py3k]
+    - python >=2.6,<3 # [py2k]
     - numpy
 
 test:
   # Python imports
   imports:
-    - qimage2ndarray
 
   # commands:
     # You can put test commands to be run here.  Use this to test that the

@@ -1,33 +1,41 @@
 package:
   name: gpi
-  version: "0.6.0"
+  version: "1.0.0" # [py3k]
+  version: "0.6.0" # [py2k]
 
 source:
-  git_rev: py3k
+  git_rev: py3k # [py3k]
+  git_rev: py2k # [py2k]
   git_url: http://docbrown.local/kcii/framework-github.git
 
 requirements:
   run: # keep these strict for now
-    - python >=3.4
+    - python >=3.4 # [py3k]
+    - python >=2.6,<3 # [py2k]
     - numpy 1.9.*
-    - scipy 0.16.0
+    - scipy 0.16.*
     - matplotlib 1.4.*
-    - qt >4.8,<5
-    - pyqt >4.8,<5
+    - qt <5
+    - pyqt <5
     - pyopengl 3.*
     - psutil
-    - astyle >2,<3
+    - h5py
+    - sip
+    - pyflakes
+    - pep8
+    - astyle >2.0,<3.0
     - eigen 3.2.5
     - fftw 3.3.4
-    - h5py
-    - qimage2ndarray
+    - qimage2ndarray >=1.4
+  build:
+    - python >=3.4 # [py3k]
+    - python >=2.6,<3 # [py2k]
 
 build:
-  number: 5
-  string: py3k
+  number: 6
+  string: py{{ environ['CONDA_PY'] }}
 
 about:
   home: http://gpilab.com
   license: GPLv3
-  license_file: LICENSE
   summary: "GPI - Graphical Programming Interface Development Framework"

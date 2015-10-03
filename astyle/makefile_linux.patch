@@ -1,0 +1,15 @@
+--- build/gcc/Makefile	2015-06-11 16:24:17.182471032 -0700
++++ build/gcc/Makefile	2015-06-11 16:29:06.610457269 -0700
+@@ -35,8 +35,11 @@
+ CBASEFLAGS = -W -Wall -fno-rtti -fno-exceptions
+ JAVAINCS   = -I$(JAVA_HOME)/include
+ CXX = g++
++#INSTALL=install -o $(USER) -g $(USER)
++$(info $$USER is [${USER}])
++INSTALL=install
+-INSTALL=install -o $(USER) -g $(USER)
+ 
++
+ ##################################################
+ 
+ # define compile options for each build

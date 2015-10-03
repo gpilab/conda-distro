@@ -1,27 +1,30 @@
 package:
   name: gpi-core-nodes
-  version: "0.6.0.n1"
+  version: "0.6.0"
 
 source:
-  git_rev: develop
+  git_rev: py3k # [py3k]
+  git_rev: develop # [py2k]
   git_url: http://docbrown.local/kcii/core-nodes-github.git
 
 requirements:
   build:
-    - python >=2.6,<3
-    - gpi *n1
+    - python >=3.4 # [py3k]
+    - python >=2.6,<3 # [py2k]
+    - gpi >=1.0 # [py3k]
+    - gpi <1.0 # [py2k]
   run: # keep these strict for now
-    - python >=2.6,<3
-    - gpi *n1
+    - python >=3.4 # [py3k]
+    - python >=2.6,<3 # [py2k]
+    - gpi >=1.0 # [py3k]
+    - gpi <1.0 # [py2k]
 
 build:
   number: 0
-  string: py2x
+  string: py{{ environ['CONDA_PY'] }}
   detect_binary_files_with_prefix: True
 
 about:
   home: https://github.com/gpilab/core-nodes
   license: GPLv3
-  license_file: LICENSE
   summary: "Core nodes for the GPI development framework"
-

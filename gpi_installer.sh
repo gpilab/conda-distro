@@ -4,6 +4,7 @@
 # default options
 PYTHON_VER=3.5
 MINICONDA_NAME=Miniconda3
+CHANNEL=gpi
 
 help ()
 {
@@ -18,7 +19,7 @@ help ()
 }
 
 # user options
-while getopts "h32" opt; do
+while getopts "h32c:" opt; do
   case $opt in
     3)
       PYTHON_VER=3.5
@@ -28,6 +29,10 @@ while getopts "h32" opt; do
       echo "The python 2 stack is deprecated, consider moving to python 3." >&2
       PYTHON_VER=2.7
       MINICONDA_NAME=Miniconda
+      ;;
+    c)
+      CHANNEL=$OPTARG
+      echo "Using channel $CHANNEL ." >&2 
       ;;
     h)
       help >&2
@@ -73,7 +78,7 @@ install ()
 
     # Install Conda Packages
     echo "Installing the GPI packages..."
-    $CONDA install -y -c gpi python=$PYTHON_VER gpi gpi-docs gpi-core-nodes
+    $CONDA install -y -c $CHANNEL python=$PYTHON_VER gpi gpi-docs gpi-core-nodes
 
     # Linux
     if [ "$(uname)" == "Linux" ]; then

@@ -1,6 +1,6 @@
 package:
   name: gpi-docs
-  version: "0.6.0"
+  version: "1.0.0"
 
 source:
   git_rev: master
@@ -9,13 +9,16 @@ source:
 requirements:
   build:
     - gpi >=0.6.0
-    - python >=3.4
+    - python >=3.4 # [py3k]
+    - python >=2.6,<3 # [py2k]
   run: # keep these strict for now
     - gpi >=0.6.0
-    - python >=3.4
+    - python >=3.4 # [py3k]
+    - python >=2.6,<3 # [py2k]
 
 build:
   number: 0
+  string: py{{ environ['CONDA_PY'] }}
   detect_binary_files_with_prefix: True
 
 about:

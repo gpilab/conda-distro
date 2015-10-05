@@ -18,6 +18,12 @@ if [ "$(uname)" == "Linux" ]; then
     cp -R bin/* $PREFIX/bin/
     cp -R lib/gpi $SP_DIR
     cp -R include/* $PREFIX/include/
+
+    # launcher
+    LAUNCHER_PATH=$PREFIX/share/gpi
+    mkdir -p $LAUNCHER_PATH
+    cp launch/GPI.desktop $LAUNCHER_PATH/
+    cp lib/gpi/graphics/iclogo.png $LAUNCHER_PATH/
 fi
 
 # copy and rename 'gpi.command' to 'gpi'

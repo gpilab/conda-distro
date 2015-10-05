@@ -8,12 +8,21 @@ CHANNEL=gpi
 
 help ()
 {
+    echo " "
+    echo "      --------------------------------------------------------      "
+    echo " "
+    echo "  Welcome to the GPI-MiniConda stack installer.  This script will   "
+    echo "     install MiniConda (continuum.io) and the GPI (gpilab.com)      "
+    echo "            application packages to a given directory.              "
+    echo " "
+    echo "                         - - - - - - - - -                          "
+    echo " "
     echo "usage: $0 [options] [path]"
-    echo "    -2    install the python 2.7 stack"
     echo "    -3    install the python 3.5 stack (default)"
+    echo "    -2    install the python 2.7 stack"
     echo "    -h    this help"
     echo " "
-    echo "    Example: $0 -3 ~/gpi_stack"
+    echo "    Example: $0 ~/gpi_stack"
     echo " "
     exit 1
 }
@@ -81,6 +90,10 @@ install ()
         exit 1
     fi
 
+    # make a tmp working dir
+    TMPDIR=`mktemp -d`
+    cd $TMPDIR
+
     # Run install script
     $GET $MINICONDA_WEB/$MINICONDA_SCRIPT
     chmod a+x $MINICONDA_SCRIPT
@@ -107,7 +120,8 @@ install ()
 
     # Clean up the downloaded files
     echo "Removing tmp files..."
-    rm ./$MINICONDA_SCRIPT
+    cd -
+    rm -rf $TMPDIR
 }
 
 # Run the installer

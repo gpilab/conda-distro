@@ -66,6 +66,20 @@ CONDA=$MINICONDA_PATH/bin/conda
 if [ -z "$MINICONDA_PATH" ]; then
     help
 fi
+PATHTOTHEPATH=`dirname $MINICONDA_PATH`
+if [ ! -d "$PATHTOTHEPATH" ]; then
+    echo "The parent path '$PATHTOTHEPATH' doesn't exit."
+    exit 1
+fi
+if [[ ! "$MINICONDA_PATH" = /* ]]; then
+    echo "Please provide a full path ('~' is allowed)."
+    exit 1
+fi
+# See if the directory is already in use
+if [ -d "$MINICONDA_PATH" ]; then
+    echo "The supplied directory already exists, installation aborted."
+    exit 1
+fi
 echo "Installing the GPI stack for python $PYTHON_VER in $MINICONDA_PATH ..."
 
 # Install MiniConda -detect OS
@@ -84,12 +98,6 @@ fi
 
 install ()
 {
-    # See if the directory is already in use
-    if [ -d "$MINICONDA_PATH" ]; then
-        echo "The supplied directory already exists, installation aborted."
-        exit 1
-    fi
-
     # make a tmp working dir
     TMPDIR=`mktemp -d`
     cd $TMPDIR

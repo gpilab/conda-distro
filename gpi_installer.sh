@@ -40,6 +40,16 @@ while getopts "h32c:" opt; do
   esac
 done
 
+# check for available commands
+if command -v wget >/dev/null 2>&1; then
+    GET="wget -c "
+elif command -v curl >/dev/null 2>&1; then
+    GET="curl -O -C - "
+else
+    echo "This script requires either wget or curl, aborting."
+    exit 1
+fi
+
 # get user path
 shift $(($OPTIND - 1))
 MINICONDA_PATH=$1 # conda install location
@@ -72,7 +82,7 @@ install ()
     fi
 
     # Run install script
-    wget -c $MINICONDA_WEB/$MINICONDA_SCRIPT
+    $GET $MINICONDA_WEB/$MINICONDA_SCRIPT
     chmod a+x $MINICONDA_SCRIPT
     ./$MINICONDA_SCRIPT -b -p $MINICONDA_PATH
 

@@ -4,8 +4,8 @@ package:
   version: "0.6.0" # [py2k]
 
 source:
-  git_rev: develop # [py3k]
-  git_rev: py2k # [py2k]
+  git_rev: v1.0.0-rc # [py3k]
+  git_rev: v0.6.0-rc # [py2k]
   git_url: git@docbrown.local:kcii/framework-github.git
   #git_url: http://docbrown.local/kcii/framework-github.git
 

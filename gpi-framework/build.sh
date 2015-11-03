@@ -4,14 +4,14 @@
 # OSX
 if [ "$(uname)" == "Darwin" ]; then
     cp -R bin/ $PREFIX/bin/
-    cp -R lib/ $PREFIX/lib/
+    cp -R lib/ $SP_DIR
     cp -R include/ $PREFIX/include/
 fi
 
 # Linux
 if [ "$(uname)" == "Linux" ]; then
     cp -R bin/* $PREFIX/bin/
-    cp -R lib/gpi $PREFIX/lib/
+    cp -R lib/gpi $SP_DIR
     cp -R include/* $PREFIX/include/
 fi
 
@@ -19,7 +19,7 @@ fi
 cp launch/gpi.command $PREFIX/bin/gpi
 
 # copy licenses to lib dir
-cp LICENSE $PREFIX/lib/gpi/
-cp COPYING $PREFIX/lib/gpi/
-cp COPYING.LESSER $PREFIX/lib/gpi/
-cp AUTHORS $PREFIX/lib/gpi/
+cp LICENSE $SP_DIR/gpi/
+cp COPYING $SP_DIR/gpi/
+cp COPYING.LESSER $SP_DIR/gpi/
+cp AUTHORS $SP_DIR/gpi/

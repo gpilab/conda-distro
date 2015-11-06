@@ -4,10 +4,11 @@ package:
   version: "0.6.0" # [py2k]
 
 source:
-  git_rev: py3k # [py3k]
-  git_rev: py2k # [py2k]
-  git_url: git@docbrown.local:kcii/framework-github.git
-  #git_url: http://docbrown.local/kcii/framework-github.git
+  git_rev: v1.0.0-rc # [py3k]
+  git_rev: v0.6.0-rc # [py2k]
+  git_url: git@github.com:gpilab/framework.git
+  # git_url: git@docbrown.local:kcii/framework-github.git
+  # git_url: http://docbrown.local/kcii/framework-github.git
 
 requirements:
   run: # keep these strict for now
@@ -33,8 +34,8 @@ requirements:
     - python >=2.6,<3 # [py2k]
 
 build:
-  number: 6
-  string: py{{ environ['CONDA_PY'] }}
+  number: 0
+  string: py{{ environ['CONDA_PY'] }}_{{ environ['PKG_BUILDNUM'] }}
 
 about:
   home: http://gpilab.com

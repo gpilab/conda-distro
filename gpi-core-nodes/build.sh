@@ -22,5 +22,5 @@ which gpi_make
 gpi_make --all --ignore-gpirc -r3
 
 # install under the gpi package
-mkdir -p $PREFIX/lib/gpi/node-libs
-cp -r $TGT_NODE_LIB $PREFIX/lib/gpi/node-libs/
+mkdir -p $SP_DIR/gpi/node-libs
+cp -r $TGT_NODE_LIB $SP_DIR/gpi/node-libs/

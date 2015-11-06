@@ -1,11 +1,12 @@
 package:
   name: gpi-core-nodes
-  version: "0.6.0"
+  version: "1.0.0" # [py3k]
+  version: "0.6.0" # [py2k]
 
 source:
   git_rev: py3k # [py3k]
   git_rev: develop # [py2k]
-  git_url: git@docbrown.local:kcii/core-nodes-github.git
+  git_url: https://github.com/gpilab/core-nodes.git
   #git_url: http://docbrown.local/kcii/core-nodes-github.git
 
 requirements:
@@ -22,7 +23,7 @@ requirements:
 
 build:
   number: 0
-  string: py{{ environ['CONDA_PY'] }}
+  string: py{{ environ['CONDA_PY'] }}_{{ environ['PKG_BUILDNUM'] }}
   detect_binary_files_with_prefix: True
 
 about:

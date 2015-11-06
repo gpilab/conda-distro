@@ -6,7 +6,7 @@ package:
 source:
   git_rev: v1.0.0-rc # [py3k]
   git_rev: v0.6.0-rc # [py2k]
-  git_url: git@github.com:gpilab/framework.git
+  git_url: https://github.com/gpilab/framework.git
   # git_url: git@docbrown.local:kcii/framework-github.git
   # git_url: http://docbrown.local/kcii/framework-github.git
 

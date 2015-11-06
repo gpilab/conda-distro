@@ -7,10 +7,12 @@ if [ "$(id -u)" != "0" ]; then
     exit 1
 fi
 
+NAME=$1
+
 function buildall ()
 {
-    ./build_app.sh
-    ./build_dmg.sh
+    #./wrappaconda.sh $NAME
+    ./build_dmg.sh $NAME
 }
 
 time buildall

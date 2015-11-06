@@ -7,9 +7,6 @@ conda-env=2.4.2=py35_0
 eigen=3.2.5=0
 fftw=3.3.4=0
 freetype=2.5.2=2
-gpi=0.6.0=py3k
-gpi-core-nodes=0.6.0=py3k
-gpi-docs=0.6.0=0
 h5py=2.5.0=np19py35_3
 hdf5=1.8.15.1=1
 libpng=1.6.17=0

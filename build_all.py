@@ -4,7 +4,9 @@ import os, re, six, sys, inspect, subprocess
 
 packages = ('astyle', 'fftw', 'eigen', 'qimage2ndarray', 'gpi-framework', 'gpi-core-nodes', 'gpi-docs')
 
-# cli options
+###############################################################################
+# CLI Options
+###############################################################################
 class parseargs():
     def __init__(self):
         self.dry_run = ('--dry-run' in sys.argv)
@@ -14,7 +16,15 @@ class parseargs():
         #   Force upload even if the file already exists on anaconda.org.
 
         self.use_channel = ('--channel' in sys.argv) or ('-c' in sys.argv)
-        #   Use the specified channel: -c <channel>
+        #   Use the specified channel for:
+        #       conda -c <channel>
+        #           or
+        #       anaconda -u <user>
+
+        self.upload_tag = ('--tag' in sys.argv) or ('-t' in sys.argv)
+        #   The anaconda.org <channel> i.e.: anaconda -c <channel>
+        #   Specify multiple channels with comma delimited args:
+        #       --tag rc,main,dev
 
         self.auto_upload = ('--auto-upload' in sys.argv) or ('-u' in sys.argv)
         #   Upload each file on a successful build (uses anaconda client).
@@ -45,13 +55,22 @@ class parseargs():
             m = re.search(r'(-c|--channel)\s+(\w+)\s*', ' '.join(sys.argv))
             if m: return m.group(2)
 
+    def tags(self):
+        if self.upload_tag:
+            m = re.search(r'(-t|--tag)\s+([\w,]+)\s*', ' '.join(sys.argv))
+            if m: return m.group(2).split(',')
+
     def package(self):
         if self.target_package:
             m = re.search(r'(-p|--package)\s+([\w-]+)\s*', ' '.join(sys.argv))
             if m: return m.group(2)
 
+###############################################################################
+# MAIN
+###############################################################################
 a = parseargs()
 os.environ['CONDA_PY'] = str(a.py_ver)
+os.environ['PKG_BUILDNUM'] = '0'
 
 if a.target_package:
     if a.package() in packages:
@@ -92,6 +111,9 @@ for dirname in packages:
         # build deps will require the gpi channel to be in the env
         if a.use_channel:
             anaconda_upload.append('-u '+a.channel())
+        if a.upload_tag:
+            for tag in a.tags():
+                anaconda_upload.append('-c '+tag)
         if a.force_upload:
             anaconda_upload.append('--force')
         upload_command = ' '.join(anaconda_upload)

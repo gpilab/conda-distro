@@ -6,6 +6,7 @@ if [ "$(uname)" == "Darwin" ]; then
     cp -R bin/ $PREFIX/bin/
     cp -R lib/ $SP_DIR
     cp -R include/ $PREFIX/include/
+    cp launch/gpi.command $PREFIX/bin/gpi_app
 fi
 
 # Linux

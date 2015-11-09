@@ -11,7 +11,7 @@ NAME=$1
 
 function buildall ()
 {
-    #./wrappaconda.sh $NAME
+    ./wrappaconda.sh $NAME
     ./build_dmg.sh $NAME
 }
 

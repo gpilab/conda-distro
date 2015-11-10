@@ -6,7 +6,11 @@ if [ "$(uname)" == "Darwin" ]; then
     cp -R bin/ $PREFIX/bin/
     cp -R lib/ $SP_DIR
     cp -R include/ $PREFIX/include/
-    cp launch/gpi.command $PREFIX/bin/gpi_app
+
+    # ".command" script is required for terminal.app launcher
+    cp launch/gpi.command $PREFIX/bin/
+    # terminal.app launcher script, the target for GPI.app
+    cp launch/gpi.app $PREFIX/bin/
 fi
 
 # Linux

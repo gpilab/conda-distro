@@ -33,7 +33,9 @@ class parseargs():
         #   Don't try to build the package if the tarball already exists.
 
         self.target_package = ('--package' in sys.argv) or ('-p' in sys.argv)
-        #   Specify a package to build, (ignores the rest of the list).
+        #   Specify a package or packages to build.  By default all the
+        #   packages are built. Multiple packages are comma delimited.
+        #       --package gpi-framework,gpi-core-nodes,gpi-docs
 
         self.py_ver = 35 # (default)
         if ('--py27' in sys.argv) or ('-2' in sys.argv):
@@ -48,6 +50,11 @@ class parseargs():
         lines = [re.sub(r'[\'()#]|self\.| in sys\.argv|^.*sys\.exit.*$','',l)
                 for l in inspect.getsourcelines(self.__init__)[0]]
         lines[0] = 'usage '+sys.argv[0]+' [options]\n'
+
+        typical_usage = '''\tTypical Usage:
+            $ ./build_all.py -f -u -c gpi -t rc,main -p gpi-framework,gpi-core-nodes,gpi-docs 
+        '''
+        lines.append(typical_usage)
         return ''.join(lines)
 
     def channel(self):
@@ -60,10 +67,10 @@ class parseargs():
             m = re.search(r'(-t|--tag)\s+([\w,]+)\s*', ' '.join(sys.argv))
             if m: return m.group(2).split(',')
 
-    def package(self):
+    def packages(self):
         if self.target_package:
-            m = re.search(r'(-p|--package)\s+([\w-]+)\s*', ' '.join(sys.argv))
-            if m: return m.group(2)
+            m = re.search(r'(-p|--package)\s+([\w,-]+)\s*', ' '.join(sys.argv))
+            if m: return m.group(2).split(',')
 
 ###############################################################################
 # MAIN
@@ -72,13 +79,22 @@ a = parseargs()
 os.environ['CONDA_PY'] = str(a.py_ver)
 os.environ['PKG_BUILDNUM'] = '0'
 
-if a.target_package:
-    if a.package() in packages:
-        packages = [a.package()]
-    else:
-        print(a.package(), ' is not a valid package name, abort.')
-        sys.exit(1)
+def validPackage(name):
+    return name in packages
 
+# if the user has chosen a specific package(s) to build
+if a.target_package:
+
+    # validate all chosen packages
+    for pkg in a.packages():
+        if not validPackage(pkg):
+            print(a.packages(), ' is not a valid package name, abort.')
+            sys.exit(1)
+
+    # pass all chosen packages
+    packages = a.packages()
+
+# build all packages in the list
 for dirname in packages:
     print(dirname)
     if os.path.isdir(dirname) and not dirname.startswith('.'):

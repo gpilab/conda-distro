@@ -12,8 +12,8 @@ source:
 
 requirements:
   run: # keep these strict for now
-    - python >=3.4 # [py3k]
-    - python >=2.6,<3 # [py2k]
+    - python 3.5.* # [py3k]
+    - python 2.7.* # [py2k]
     - numpy 1.9.*
     - scipy 0.16.*
     - matplotlib 1.4.*
@@ -30,8 +30,8 @@ requirements:
     - fftw 3.3.4
     - qimage2ndarray >=1.4
   build:
-    - python >=3.4 # [py3k]
-    - python >=2.6,<3 # [py2k]
+    - python 3.5.* # [py3k]
+    - python 2.7.* # [py2k]
 
 build:
   number: 0

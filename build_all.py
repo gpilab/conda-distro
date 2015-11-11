@@ -170,4 +170,4 @@ for dirname in packages:
             if not a.dry_run:
                 subprocess.call(upload_command, shell=True)
 
-print("Finished "+sys.argv[0])
+print("Finished "+' '.join(sys.argv))

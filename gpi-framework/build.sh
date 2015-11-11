@@ -28,3 +28,11 @@ cp LICENSE $SP_DIR/gpi/
 cp COPYING $SP_DIR/gpi/
 cp COPYING.LESSER $SP_DIR/gpi/
 cp AUTHORS $SP_DIR/gpi/
+
+# drop a version file with parseable info
+VERSION_FPATH=$SP_DIR/gpi/VERSION
+echo "PKG_NAME: $PKG_NAME" > $VERSION_FPATH
+echo "PKG_VERSION: $PKG_VERSION" >> $VERSION_FPATH
+echo "GIT_FULL_HASH: $GIT_FULL_HASH" >> $VERSION_FPATH
+BUILD_DATE=`date +%Y-%m-%d`
+echo "BUILD_DATE: $BUILD_DATE" >> $VERSION_FPATH

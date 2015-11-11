@@ -34,8 +34,8 @@ requirements:
     - python >=2.6,<3 # [py2k]
 
 build:
-  number: 0
-  string: py{{ environ['CONDA_PY'] }}_{{ environ['PKG_BUILDNUM'] }}
+  number: {{ environ['PKG_BUILDNUM'] }}
+  string: py{{ environ['CONDA_PY'] }}_{{ environ['PKG_BUILDNUM'] }}{{ environ['RELEASE_STR'] }}
 
 about:
   home: http://gpilab.com

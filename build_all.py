@@ -37,10 +37,11 @@ class parseargs():
         #   packages are built. Multiple packages are comma delimited.
         #       --package gpi-framework,gpi-core-nodes,gpi-docs
 
-        self.py_ver = 35 # (default)
-        if ('--py27' in sys.argv) or ('-2' in sys.argv):
-            self.py_ver = 27
-        #   Choose the version of python 2.7 or 3.5.
+        self.release_candidate = ('--releaes-candidate' in sys.argv) or ('-rc' in sys.argv)
+        #   Add the _rc suffix to the build string. Automatically adds rc to the tags.
+
+        self.py_ver = ('--python-version' in sys.argv) or ('-py' in sys.argv)
+        #   Choose the version of python: 26, 27, 34, 35.  The default is 35.
 
         if ('--help' in sys.argv) or ('-h' in sys.argv):
         #   This help.
@@ -52,7 +53,15 @@ class parseargs():
         lines[0] = 'usage '+sys.argv[0]+' [options]\n'
 
         typical_usage = '''\tTypical Usage:
-            $ ./build_all.py -f -u -c gpi -t rc,main -p gpi-framework,gpi-core-nodes,gpi-docs 
+            tag/sub-channel:
+
+            main:
+                ./build_all.py -f -u -c gpi -t main -py 35 -p gpi-framework,gpi-core-nodes,gpi-docs
+                ./build_all.py -f -u -c gpi -t main -py 27 -p gpi-framework,gpi-core-nodes,gpi-docs
+
+            rc:
+                ./build_all.py -f -u -c gpi -rc -py 35 -p gpi-framework,gpi-core-nodes,gpi-docs
+                ./build_all.py -f -u -c gpi -rc -py 27 -p gpi-framework,gpi-core-nodes,gpi-docs
         '''
         lines.append(typical_usage)
         return ''.join(lines)
@@ -67,6 +76,11 @@ class parseargs():
             m = re.search(r'(-t|--tag)\s+([\w,]+)\s*', ' '.join(sys.argv))
             if m: return m.group(2).split(',')
 
+    def python_version(self):
+        if self.py_ver:
+            m = re.search(r'(-py|--python-version)\s+([\w\.]+)\s*', ' '.join(sys.argv))
+            if m: return m.group(2)
+
     def packages(self):
         if self.target_package:
             m = re.search(r'(-p|--package)\s+([\w,-]+)\s*', ' '.join(sys.argv))
@@ -76,8 +90,16 @@ class parseargs():
 # MAIN
 ###############################################################################
 a = parseargs()
-os.environ['CONDA_PY'] = str(a.py_ver)
+os.environ['CONDA_PY'] = '35'
+if a.py_ver:
+    if a.python_version() in ['26','27','34','35']:
+        os.environ['CONDA_PY'] = a.python_version()
+    else:
+        print('Invalid python version selected (%s), abort.' % a.python_version())
+        sys.exit(1)
 os.environ['PKG_BUILDNUM'] = '0'
+if a.release_candidate:
+    os.environ['RELEASE_STR'] = '_rc'
 
 def validPackage(name):
     return name in packages
@@ -99,15 +121,10 @@ for dirname in packages:
     print(dirname)
     if os.path.isdir(dirname) and not dirname.startswith('.'):
 
-        if dirname == 'astyle' and a.py_ver == 35 and sys.platform == 'linux':
-            print('Astyle needs to be built with python2.7 on Linux, skipping...')
-            print('   $ '+sys.argv[0]+' -2 -p astyle')
-            continue
-
         ## ASSEMBLE COMMANDS
         # BUILD COMMAND
         conda_build = ['conda', 'build', dirname,
-                       '--python {}'.format(a.py_ver/10.), '--no-anaconda-upload']
+                       '--python {}'.format(int(os.environ['CONDA_PY'])/10), '--no-anaconda-upload']
         if a.use_channel:
             conda_build.append('-c '+a.channel())
         build_command = ' '.join(conda_build)
@@ -130,6 +147,8 @@ for dirname in packages:
         if a.upload_tag:
             for tag in a.tags():
                 anaconda_upload.append('-c '+tag)
+        if a.release_candidate:
+            anaconda_upload.append('-c rc')
         if a.force_upload:
             anaconda_upload.append('--force')
         upload_command = ' '.join(anaconda_upload)

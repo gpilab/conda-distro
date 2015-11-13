@@ -1,7 +1,7 @@
 package:
   name: gpi-core-nodes
-  version: "1.0.0" # [py3k]
-  version: "0.6.0" # [py2k]
+  version: "1.0.1" # [py3k]
+  version: "0.6.1" # [py2k]
 
 source:
   git_rev: v1.0.0-rc # [py3k]

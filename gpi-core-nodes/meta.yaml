@@ -20,6 +20,12 @@ requirements:
     - python >=2.6,<3 # [py2k]
     - gpi >=1.0 # [py3k]
     - gpi <1.0 # [py2k]
+    - pillow
+    - numpy
+    - scipy
+    - matplotlib
+    - pyopengl
+    - h5py
 
 build:
   number: {{ environ['PKG_BUILDNUM'] }}

@@ -43,6 +43,9 @@ class parseargs():
         self.py_ver = ('--python-version' in sys.argv) or ('-py' in sys.argv)
         #   Choose the version of python: 26, 27, 34, 35.  The default is 35.
 
+        self.build_num = ('--build-number' in sys.argv) or ('-b' in sys.argv)
+        #   Choose the build number which will be added as Ex. py35_<number>.
+
         if ('--help' in sys.argv) or ('-h' in sys.argv):
         #   This help.
             (print(self.help()), sys.exit(0))
@@ -56,8 +59,8 @@ class parseargs():
             tag/sub-channel:
 
             main:
-                ./build_all.py -f -u -c gpi -t main -py 35 -p gpi-framework,gpi-core-nodes,gpi-docs
-                ./build_all.py -f -u -c gpi -t main -py 27 -p gpi-framework,gpi-core-nodes,gpi-docs
+                ./build_all.py -f -u -c gpi -t main -py 35 -b 0 -p gpi-framework,gpi-core-nodes,gpi-docs
+                ./build_all.py -f -u -c gpi -t main -py 27 -b 0 -p gpi-framework,gpi-core-nodes,gpi-docs
 
             rc:
                 ./build_all.py -f -u -c gpi -rc -py 35 -p gpi-framework,gpi-core-nodes,gpi-docs
@@ -81,6 +84,12 @@ class parseargs():
             m = re.search(r'(-py|--python-version)\s+([\w\.]+)\s*', ' '.join(sys.argv))
             if m: return m.group(2)
 
+    def build_number(self):
+        if self.build_num:
+            m = re.search(r'(-b|--build-number)\s+([\w\.]+)\s*', ' '.join(sys.argv))
+            if m: return m.group(2)
+            else: return '0'
+
     def packages(self):
         if self.target_package:
             m = re.search(r'(-p|--package)\s+([\w,-]+)\s*', ' '.join(sys.argv))
@@ -97,9 +106,16 @@ if a.py_ver:
     else:
         print('Invalid python version selected (%s), abort.' % a.python_version())
         sys.exit(1)
-os.environ['PKG_BUILDNUM'] = '0'
+
+os.environ['PKG_BUILDNUM_STR'] = '0'
+if a.build_num:
+    os.environ['PKG_BUILDNUM_STR'] = a.build_number()
+
+os.environ['FULL_BUILD_STR'] = 'py'+os.environ['CONDA_PY'] + '_' + os.environ['PKG_BUILDNUM_STR']
+
 if a.release_candidate:
     os.environ['RELEASE_STR'] = '_rc'
+    os.environ['FULL_BUILD_STR'] += os.environ['RELEASE_STR']
 
 def validPackage(name):
     return name in packages

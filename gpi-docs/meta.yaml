@@ -17,8 +17,8 @@ requirements:
     - python >=2.6,<3 # [py2k]
 
 build:
-  number: {{ environ['PKG_BUILDNUM'] }}
-  string: py{{ environ['CONDA_PY'] }}_{{ environ['PKG_BUILDNUM'] }}{{ environ['RELEASE_STR'] }}
+  number: {{ environ['PKG_BUILDNUM_STR'] }}
+  string: {{ environ['FULL_BUILD_STR'] }}
   detect_binary_files_with_prefix: True
 
 about:

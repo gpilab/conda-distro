@@ -120,8 +120,14 @@ install ()
     ./$MINICONDA_SCRIPT -b -p $MINICONDA_PATH
 
     # Install Conda Packages
+    # 1. First install the python version.
+    #   -this is needed to select the right one before gpi deps are determined
+    # 2. Install gpi with no-deps to ensure the latest is picked.
+    # 3. Update and install all deps.
     echo "Installing the GPI packages..."
-    $CONDA install -y -c $CHANNEL python=$PYTHON_VER gpi gpi-docs gpi-core-nodes
+    $CONDA install -y -c $CHANNEL python=$PYTHON_VER
+    $CONDA install -y -f -c $CHANNEL gpi gpi-core-nodes
+    $CONDA update -y --update-dependencies -c $CHANNEL --all
 
     # Linux
     if [ "$(uname)" == "Linux" ]; then

@@ -59,6 +59,18 @@ else
     exit 1
 fi
 
+# check for root
+if [ "$(id -u)" == "0" ]; then
+    echo -n " 
+    It looks like you are attempting to install GPI as root or sudo. While
+    this is possible, it is recommended that you install GPI under your 
+    home directory.
+
+    Press ENTER to continue or CTRL-c to quit.
+    "
+    read dummy
+fi
+
 # get user path
 shift $(($OPTIND - 1))
 MINICONDA_PATH=$1 # conda install location

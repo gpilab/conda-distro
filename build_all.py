@@ -1,189 +1,145 @@
 #!/usr/bin/env python
 from __future__ import print_function, division
-import os, re, six, sys, inspect, subprocess
+import argparse, os, re, six, sys, inspect, subprocess
 
 packages = ('astyle', 'fftw', 'eigen', 'qimage2ndarray', 'gpi-framework', 'gpi-core-nodes', 'gpi-docs')
 
 ###############################################################################
 # CLI Options
 ###############################################################################
-class parseargs():
-    def __init__(self):
-        self.dry_run = ('--dry-run' in sys.argv)
-        #   Show the assembled commands.
+def add_args(parser):
+    parser.add_argument("--dry-run",
+                        help="Show the assembled commands.",
+                        action='store_true')
 
-        self.force_upload = ('--force-upload' in sys.argv) or ('-f' in sys.argv)
-        #   Force upload even if the file already exists on anaconda.org.
+    parser.add_argument("--force-upload",
+                        help="Force upload even if the file already exists on anaconda.org",
+                        action='store_true')
 
-        self.use_channel = ('--channel' in sys.argv) or ('-c' in sys.argv)
-        #   Use the specified channel for:
-        #       conda -c <channel>
-        #           or
-        #       anaconda -u <user>
+    parser.add_argument("--channel", "-c", nargs='?', default=[],
+                        help="Add the specified channel when building.",
+                        action='append')
 
-        self.upload_tag = ('--tag' in sys.argv) or ('-t' in sys.argv)
-        #   The anaconda.org <channel> i.e.: anaconda -c <channel>
-        #   Specify multiple channels with comma delimited args:
-        #       --tag rc,main,dev
+    parser.add_argument("--upload-channel",
+                        help="Upload to the specified channel.",
+                        action='store')
 
-        self.auto_upload = ('--auto-upload' in sys.argv) or ('-u' in sys.argv)
-        #   Upload each file on a successful build (uses anaconda client).
+    parser.add_argument("--upload-tag", default=[],
+                        help="The anaconda.org <channel> i.e.: anaconda -c <channel>",
+                        action='append')
 
-        self.skip_built = ('--skip-built' in sys.argv) or ('-s' in sys.argv)
-        #   Don't try to build the package if the tarball already exists.
+    parser.add_argument("--auto-upload", "-u",
+                        help="Upload each file on a successful build (uses anaconda client).",
+                        action='store_true')
 
-        self.target_package = ('--package' in sys.argv) or ('-p' in sys.argv)
-        #   Specify a package or packages to build.  By default all the
-        #   packages are built. Multiple packages are comma delimited.
-        #       --package gpi-framework,gpi-core-nodes,gpi-docs
+    parser.add_argument("--skip-built", "-s",
+                        help="Don't try to build a package if the tarball already exists.",
+                        action='store_true')
 
-        self.release_candidate = ('--releaes-candidate' in sys.argv) or ('-rc' in sys.argv)
-        #   Add the _rc suffix to the build string. Automatically adds rc to the tags.
+    parser.add_argument("--package", "-p",
+                        help="Specify a package to build (default is all packages).",
+                        action='append')
 
-        self.py_ver = ('--python-version' in sys.argv) or ('-py' in sys.argv)
-        #   Choose the version of python: 26, 27, 34, 35.  The default is 35.
+    parser.add_argument("--release-candidate", "-rc",
+                        help="Add the _rc suffix to the build string, and add rc to the upload tags.",
+                        action='append')
 
-        self.build_num = ('--build-number' in sys.argv) or ('-b' in sys.argv)
-        #   Choose the build number which will be added as Ex. py35_<number>.
+    parser.add_argument("--python-version", "-py", type=int,
+                        help="Choose the version of python: 26, 27, 34, 35, 36. The default is 36.",
+                        default=36)
 
-        if ('--help' in sys.argv) or ('-h' in sys.argv):
-        #   This help.
-            (print(self.help()), sys.exit(0))
-
-    def help(self):
-        lines = [re.sub(r'[\'()#]|self\.| in sys\.argv|^.*sys\.exit.*$','',l)
-                for l in inspect.getsourcelines(self.__init__)[0]]
-        lines[0] = 'usage '+sys.argv[0]+' [options]\n'
-
-        typical_usage = '''\tTypical Usage:
-            tag/sub-channel:
-
-            main:
-                ./build_all.py -f -u -c gpi -t main -py 35 -b 0 -p gpi-framework,gpi-core-nodes,gpi-docs
-                ./build_all.py -f -u -c gpi -t main -py 27 -b 0 -p gpi-framework,gpi-core-nodes,gpi-docs
-
-            rc:
-                ./build_all.py -f -u -c gpi -rc -py 35 -p gpi-framework,gpi-core-nodes,gpi-docs
-                ./build_all.py -f -u -c gpi -rc -py 27 -p gpi-framework,gpi-core-nodes,gpi-docs
-        '''
-        lines.append(typical_usage)
-        return ''.join(lines)
-
-    def channel(self):
-        if self.use_channel:
-            m = re.search(r'(-c|--channel)\s+(\w+)\s*', ' '.join(sys.argv))
-            if m: return m.group(2)
-
-    def tags(self):
-        if self.upload_tag:
-            m = re.search(r'(-t|--tag)\s+([\w,]+)\s*', ' '.join(sys.argv))
-            if m: return m.group(2).split(',')
-
-    def python_version(self):
-        if self.py_ver:
-            m = re.search(r'(-py|--python-version)\s+([\w\.]+)\s*', ' '.join(sys.argv))
-            if m: return m.group(2)
-
-    def build_number(self):
-        if self.build_num:
-            m = re.search(r'(-b|--build-number)\s+([\w\.]+)\s*', ' '.join(sys.argv))
-            if m: return m.group(2)
-            else: return '0'
-
-    def packages(self):
-        if self.target_package:
-            m = re.search(r'(-p|--package)\s+([\w,-]+)\s*', ' '.join(sys.argv))
-            if m: return m.group(2).split(',')
+    parser.add_argument("--build-number", "-b", type=int,
+                        help="Speficy a build number added to the build string e.g. py35_<buildnumber>.",
+                        default=0)
 
 ###############################################################################
 # MAIN
 ###############################################################################
-a = parseargs()
-os.environ['CONDA_PY'] = '35'
-if a.py_ver:
-    if a.python_version() in ['26','27','34','35']:
-        os.environ['CONDA_PY'] = a.python_version()
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    add_args(parser)
+    args = parser.parse_args()
+
+    if args.python_version in [26,27,34,35,36]:
+        os.environ['CONDA_PY'] = str(args.python_version)
     else:
-        print('Invalid python version selected (%s), abort.' % a.python_version())
+        print(f"Invalid python version selected ({args.python_version}), aborting.")
         sys.exit(1)
+    
+    os.environ['PKG_BUILDNUM'] = str(args.build_number)
 
-os.environ['PKG_BUILDNUM_STR'] = '0'
-if a.build_num:
-    os.environ['PKG_BUILDNUM_STR'] = a.build_number()
+    os.environ['PKG_BUILD_STRING'] = f"py{os.environ['CONDA_PY']}_{os.environ['PKG_BUILDNUM']}"
+    
+    if args.release_candidate:
+        os.environ['RELEASE_STRING'] = '_rc'
+        os.environ['PKG_BUILD_STRING'] += os.environ['RELEASE_STRING']
 
-os.environ['FULL_BUILD_STR'] = 'py'+os.environ['CONDA_PY'] + '_' + os.environ['PKG_BUILDNUM_STR']
-
-if a.release_candidate:
-    os.environ['RELEASE_STR'] = '_rc'
-    os.environ['FULL_BUILD_STR'] += os.environ['RELEASE_STR']
-
-def validPackage(name):
-    return name in packages
-
-# if the user has chosen a specific package(s) to build
-if a.target_package:
-
+    def validPackage(name):
+        return name in packages
+    
+    # if the user has chosen a specific package(s) to build
     # validate all chosen packages
-    for pkg in a.packages():
+    for pkg in args.package:
         if not validPackage(pkg):
-            print(a.packages(), ' is not a valid package name, abort.')
+            print(args.package, ' is not a valid package name, abort.')
             sys.exit(1)
-
+    
     # pass all chosen packages
-    packages = a.packages()
+    packages = args.package
+    
+    # build all packages in the list
+    for dirname in packages:
+        if os.path.isdir(dirname) and not dirname.startswith('.'):
+    
+            ## ASSEMBLE COMMANDS
+            # BUILD COMMAND
+            conda_build = ['conda', 'build', dirname,
+                           f"--python {int(os.environ['CONDA_PY'])/10}"]
+            conda_build += ['--no-anaconda-upload']
 
-# build all packages in the list
-for dirname in packages:
-    print(dirname)
-    if os.path.isdir(dirname) and not dirname.startswith('.'):
+            for ch in args.channel:
+                conda_build.append(f"-c {ch}")
+            build_command = ' '.join(conda_build)
+            pkgname = subprocess.Popen(build_command + ' --output', shell=True,
+                                       stdout=subprocess.PIPE).stdout.read().strip()
+    
+            # split out the upload from the build so we have more control
+            pkgname = pkgname.decode('ascii') # required by py3
 
-        ## ASSEMBLE COMMANDS
-        # BUILD COMMAND
-        conda_build = ['conda', 'build', dirname,
-                       '--python {}'.format(int(os.environ['CONDA_PY'])/10), '--no-anaconda-upload']
-        if a.use_channel:
-            conda_build.append('-c '+a.channel())
-        build_command = ' '.join(conda_build)
+            # UPLOAD COMMAND
+            anaconda_upload = ['anaconda', 'upload', pkgname]
+    
+            if args.skip_built:
+                if os.path.isfile(pkgname):
+                    print('\t', dirname, ' is already built, skipping...')
+                    continue
+    
+            # build deps will require the gpi channel to be in the env
+            anaconda_upload.append(f"-u {args.upload_channel}")
+            for tag in args.upload_tag:
+                anaconda_upload.append(f"-l {tag}")
+            if args.release_candidate:
+                anaconda_upload.append('-l rc')
+            if args.force_upload:
+                anaconda_upload.append('--force')
 
-        # UPLOAD COMMAND
-        # split out the upload from the build so we have more control
-        pkgname = subprocess.Popen(build_command + ' --output', shell=True,
-                stdout=subprocess.PIPE).stdout.read().strip()
-        pkgname = pkgname.decode('ascii') # required by py3
-        anaconda_upload = ['anaconda', 'upload', pkgname]
-
-        if a.skip_built:
-            if os.path.isfile(pkgname):
-                print('\t', dirname, ' is already built, skipping...')
-                continue
-
-        # build deps will require the gpi channel to be in the env
-        if a.use_channel:
-            anaconda_upload.append('-u '+a.channel())
-        if a.upload_tag:
-            for tag in a.tags():
-                anaconda_upload.append('-c '+tag)
-        if a.release_candidate:
-            anaconda_upload.append('-c rc')
-        if a.force_upload:
-            anaconda_upload.append('--force')
-        upload_command = ' '.join(anaconda_upload)
-
-        ## EXECUTE COMMANDS
-        # BUILD
-        print(build_command)
-        if not a.dry_run:
-            subprocess.call(build_command, shell=True)
-
-            if not os.path.isfile(pkgname):
-                print('\n\nBuild FAILED for package: ', dirname)
-                print('\tThe following file doesn\'t exist: ', pkgname, '\n\n')
-                sys.exit(1)
-
-        # UPLOAD
-        if a.auto_upload:
-            print(upload_command)
-            if not a.dry_run:
-                subprocess.call(upload_command, shell=True)
-
-print("Finished "+' '.join(sys.argv))
+            upload_command = ' '.join(anaconda_upload)
+    
+            ## EXECUTE COMMANDS
+            # BUILD
+            print(build_command)
+            if not args.dry_run:
+                subprocess.call(build_command, shell=True)
+    
+                if not os.path.isfile(pkgname):
+                    print('\n\nBuild FAILED for package: ', dirname)
+                    print('\tThe following file doesn\'t exist: ', pkgname, '\n\n')
+                    sys.exit(1)
+    
+            # UPLOAD
+            if args.auto_upload:
+                print(upload_command)
+                if not args.dry_run:
+                    subprocess.call(upload_command, shell=True)
+    
+    print("Finished "+' '.join(sys.argv))

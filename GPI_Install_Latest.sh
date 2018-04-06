@@ -2,9 +2,8 @@
 # Build the GPI-MiniConda Stack for python 3 (or 2).
 
 # default options
-PYTHON_VER=3.5
+PYTHON_VER=3
 MINICONDA_NAME=Miniconda3
-CHANNEL=gpi
 
 help ()
 {
@@ -96,7 +95,7 @@ echo "Installing the GPI stack for python $PYTHON_VER in $MINICONDA_PATH ..."
 
 # Install MiniConda -detect OS
 echo "Downloading and Installing MiniConda..."
-MINICONDA_WEB=https://repo.continuum.io/miniconda/
+MINICONDA_WEB=https://repo.continuum.io/miniconda
 MINICONDA_OSX=$MINICONDA_NAME-latest-MacOSX-x86_64.sh
 MINICONDA_LINUX=$MINICONDA_NAME-latest-Linux-x86_64.sh
 # OSX
@@ -125,21 +124,21 @@ install ()
     # 2. Install gpi with no-deps to ensure the latest is picked.
     # 3. Update and install all deps.
     echo "Installing the GPI packages..."
-    $CONDA install -y -c $CHANNEL python=$PYTHON_VER
-    $CONDA install -y -f -c $CHANNEL gpi gpi-core-nodes
-    $CONDA update -y --update-dependencies -c $CHANNEL --all
+    # get a base intall of python
+    $CONDA install -y -c defaults -c conda-forge -c gpi gpi-core-nodes
+    $CONDA install qt -c conda-forge
 
     # Linux
-    if [ "$(uname)" == "Linux" ]; then
-        if [ "$PYTHON_VER" == "3.5" ]; then
-            $CONDA install -y libgfortran=1.0
+    # if [ "$(uname)" == "Linux" ]; then
+    #     if [ "$PYTHON_VER" == "3.5" ]; then
+    #         $CONDA install -y libgfortran=1.0
 
-            # This is a bug in the current scipy/py35 release.
-            #   -Not sure if this fixes it, but it seems to get rid of the errors.
-            echo "Linking libgfortran.so.3 -> libgfortran.so.1..."
-            ln -s $MINICONDA_PATH/lib/libgfortran.so.1 $MINICONDA_PATH/lib/libgfortran.so.3
-        fi
-    fi
+    #         # This is a bug in the current scipy/py35 release.
+    #         #   -Not sure if this fixes it, but it seems to get rid of the errors.
+    #         echo "Linking libgfortran.so.3 -> libgfortran.so.1..."
+    #         ln -s $MINICONDA_PATH/lib/libgfortran.so.1 $MINICONDA_PATH/lib/libgfortran.so.3
+    #     fi
+    # fi
 
     echo "Removing package files..."
     $CONDA clean -t -i -p -l -y 
@@ -158,12 +157,13 @@ echo " "
 echo "------------------------------------------------------------------------"
 echo "To start GPI enter:"
 echo " "
-echo "    \$ $MINICONDA_PATH/bin/gpi"
+echo "    \$ conda activate gpi"
+echo "    \$ gpi"
 echo " "
-echo "To add GPI (and this Anaconda install) to your PATH, add the following"
-echo "line to your .bashrc file:"
+echo "To enable 'conda activate' (if you're using bash),"
+echo "add this line to the end of your .bashrc file:"
 echo " "
-echo "PATH=\"$MINICONDA_PATH/bin:\$PATH\""
+echo "$MINICONDA_PATH/etc/profile.d/conda.sh"
 echo " "
 echo " "
 exit

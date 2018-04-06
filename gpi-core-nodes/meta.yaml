@@ -1,34 +1,55 @@
 package:
   name: gpi-core-nodes
-  version: "1.0.3" # [py3k]
-  version: "0.6.1" # [py2k]
+  version: "1.0.4"
 
 source:
-  git_rev: v1.0.3 # [py3k]
-  git_rev: v0.6.0-rc # [py2k]
+  git_rev: v1.0.4
   git_url: https://github.com/gpilab/core-nodes.git
 
 requirements:
   build:
-    - python >=3.4 # [py3k]
-    - python >=2.6,<3 # [py2k]
-    - gpi >=1.0 # [py3k]
-    - gpi <1.0 # [py2k]
-  run: # keep these strict for now
-    - python >=3.4 # [py3k]
-    - python >=2.6,<3 # [py2k]
-    - gpi >=1.0 # [py3k]
-    - gpi <1.0 # [py2k]
-    - pillow
-    - numpy
-    - scipy
-    - matplotlib
-    - pyopengl
+    - gpi >=1.0
+    - astyle 2.*
+    - eigen
+    - fftw
     - h5py
+    - numba
+    - numpy
+    - pep8
+    - pillow
+    - psutil
+    - pyflakes
+    - pyopengl
+    - python >=3.4
+    - pyqt 4.*
+    - qt 4.*
+    - sip
+    - scipy
+    - qimage2ndarray
+  run:
+    - gpi >=1.0
+    - astyle 2.*
+    - eigen
+    - fftw
+    - h5py
+    - matplotlib
+    - numba
+    - {{ pin_compatible('numpy', min_pin='x.x', max_pin='x.x') }}
+    - pep8
+    - pillow
+    - psutil
+    - pyflakes
+    - pyopengl
+    - python >=3.4
+    - pyqt 4.*
+    - qt 4.*
+    - sip
+    - scipy
+    - qimage2ndarray
 
 build:
-  number: {{ environ['PKG_BUILDNUM_STR'] }}
-  string: {{ environ['FULL_BUILD_STR'] }}
+  number: {{ os.environ["PKG_BUILDNUM"] }}
+  string: {{ os.environ["PKG_BUILD_STRING"] }}
   detect_binary_files_with_prefix: True
 
 about:

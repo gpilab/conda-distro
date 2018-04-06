@@ -125,20 +125,7 @@ install ()
     # 3. Update and install all deps.
     echo "Installing the GPI packages..."
     # get a base intall of python
-    $CONDA install -y -c defaults -c conda-forge -c gpi gpi-core-nodes
-    $CONDA install qt -c conda-forge
-
-    # Linux
-    # if [ "$(uname)" == "Linux" ]; then
-    #     if [ "$PYTHON_VER" == "3.5" ]; then
-    #         $CONDA install -y libgfortran=1.0
-
-    #         # This is a bug in the current scipy/py35 release.
-    #         #   -Not sure if this fixes it, but it seems to get rid of the errors.
-    #         echo "Linking libgfortran.so.3 -> libgfortran.so.1..."
-    #         ln -s $MINICONDA_PATH/lib/libgfortran.so.1 $MINICONDA_PATH/lib/libgfortran.so.3
-    #     fi
-    # fi
+    $CONDA install -y -c conda-forge -c gpi gpi-core-nodes
 
     echo "Removing package files..."
     $CONDA clean -t -i -p -l -y 

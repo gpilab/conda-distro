@@ -23,6 +23,13 @@ help ()
     echo " "
     echo "    Example: $0 ~/gpi_stack"
     echo " "
+    echo "Alternatively, if you already have the conda package manager from a"
+    echo "previous Anaconda or Miniconda installation, you can install GPI"
+    echo "into a Python 3 environment with the following commands:"
+    echo " "
+    echo "    ~$ conda create -n gpi python=3"
+    echo "    ~$ conda activate gpi"
+    echo "    ~$ conda install -c conda-forge -c gpi gpi gpi-core-nodes"
     exit 1
 }
 
@@ -30,13 +37,13 @@ help ()
 while getopts "h32c:" opt; do
   case $opt in
     3)
-      PYTHON_VER=3.5
+      PYTHON_VER=3
       MINICONDA_NAME=Miniconda3
       ;;
     2)
-      echo "The python 2 stack is deprecated, consider moving to python 3." >&2
-      PYTHON_VER=2.7
-      MINICONDA_NAME=Miniconda
+      echo "Sorry, the Python 2 GPI stack and installation is deprecated."
+      echo "Consider moving to Python 3 for GPI development." >&2
+      exit
       ;;
     c)
       CHANNEL=$OPTARG

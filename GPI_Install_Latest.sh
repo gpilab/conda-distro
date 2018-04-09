@@ -118,6 +118,15 @@ install ()
     chmod a+x $MINICONDA_SCRIPT
     ./$MINICONDA_SCRIPT -b -p $MINICONDA_PATH
 
+    . $MINICONDA_PATH/etc/profile.d/conda.sh
+    conda create -n gpi -y
+    conda activate gpi
+
+    # add conda-forge and gpi channels
+    # TODO: consider channel priority
+    conda config --add channels conda-forge
+    conda config --add channels gpi
+
     # Install Conda Packages
     # 1. First install the python version.
     #   -this is needed to select the right one before gpi deps are determined
@@ -125,32 +134,60 @@ install ()
     # 3. Update and install all deps.
     echo "Installing the GPI packages..."
     # get a base intall of python
-    $CONDA install -y -c conda-forge -c gpi gpi-core-nodes
+    $CONDA install -y python
+    $CONDA install -y gpi-core-nodes
 
     echo "Removing package files..."
     $CONDA clean -t -i -p -l -y 
 
     # Clean up the downloaded files
     echo "Removing tmp files..."
-    cd -
+    cd ~
     rm -rf $TMPDIR
 }
 
 # Run the installer
 install
 
-echo "Done."
-echo " "
-echo "------------------------------------------------------------------------"
-echo "To start GPI enter:"
-echo " "
-echo "    \$ conda activate gpi"
-echo "    \$ gpi"
-echo " "
-echo "To enable 'conda activate' (if you're using bash),"
-echo "add this line to the end of your .bashrc file:"
-echo " "
-echo "$MINICONDA_PATH/etc/profile.d/conda.sh"
-echo " "
-echo " "
+if [ -e $MINICONDA_PATH/envs/gpi/bin/gpi ]
+then
+    echo " ------------------------------------"
+    echo "|  GPI installation was successful!  |"
+    echo " ------------------------------------"
+    echo " "
+    echo "To start GPI enter:"
+    echo " "
+    echo "    \$ conda activate gpi"
+    echo "    \$ gpi"
+    echo " "
+    echo "To enable 'conda activate' (if you're using bash),"
+    echo "add this line to the end of your .bashrc file:"
+    echo " "
+    echo ". $MINICONDA_PATH/etc/profile.d/conda.sh"
+    echo " "
+    read -p "Would you like to do this now? [Y/n]" -n 1 -r APPEND_BASHRC
+    echo
+    APPEND_BASHRC=${APPEND_BASHRC:-Y}
+    if [[ $APPEND_BASHRC =~ ^[Yy]$ ]]
+    then
+        echo ". $MINICONDA_PATH/etc/profile.d/conda.sh" >> ~/.bashrc
+	echo "Launch a new terminal for this to take effect."
+    fi
+    echo " "
+else
+    echo " ----------------------------"
+    echo "|  GPI installation FAILED!  |"
+    echo " ----------------------------"
+    echo "removing $MINICONDA_PATH"
+    rm -rf $MINICONDA_PATH
+    echo " "
+    echo "Please try running the script again."
+    echo " "
+    echo "Scroll up to see if you can spot the error."
+    echo "If you still have issues, copy the output of the"
+    echo "installation command and report issues on the"
+    echo "GitHub issue tracker:"
+    echo "https://github.com/gpilab/conda-distro/issues"
+fi
+
 exit

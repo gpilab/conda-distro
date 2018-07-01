@@ -170,7 +170,8 @@ then
     echo "To enable 'conda activate' (if you're using bash),"
     echo "add this line to the end of your .bashrc file:"
     echo " "
-    echo ". $MINICONDA_PATH/etc/profile.d/conda.sh"
+    # echo ". $MINICONDA_PATH/etc/profile.d/conda.sh"
+    echo "PATH=\"$MINICONDA_PATH/bin:\$PATH\""
     echo " "
     read -p "Would you like to do this now? [Y/n] " -n 1 -r APPEND_BASHRC
     echo

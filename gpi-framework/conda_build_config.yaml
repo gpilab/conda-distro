@@ -2,7 +2,7 @@ python:
   - 3.4
   - 3.5
   - 3.6
-  - 3.7
+  # - 3.7 # no compatible pyqt4 packages
 
 # numpy use in framework is pure-python, no need to build multiple or pin
 # numpy:

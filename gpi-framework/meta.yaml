@@ -9,6 +9,8 @@ source:
   git_url: https://github.com/gpilab/framework.git
 
 requirements:
+  build:
+    - python {{ python }}
   run:
     - eigen
     - fftw
@@ -19,11 +21,9 @@ requirements:
     - pyopengl
     - python
     - pyqt {{ pyqt }}
-    - qt {{ qt }}
+    # - qt {{ qt }}
     - sip
     - qimage2ndarray
-  build:
-    - python
 
 build:
   number: {{ os.environ["PKG_BUILDNUM"] }}

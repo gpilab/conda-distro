@@ -9,21 +9,22 @@ source:
 
 requirements:
   build:
-    - {{ compiler('cxx') }}
-    - eigen
-    - fftw
     - gpi
-    - numpy {{ numpy }}
-    - python {{ python }}
+    - {{ compiler('cxx') }}
+  host:
+    - eigen =3
+    - fftw
+    - numpy 1.11.* # forward-compatible ABI
+    - python
   run:
-    - {{ pin_compatible('eigen') }}
+    - eigen =3
     - {{ pin_compatible('fftw') }}
     - gpi
     - matplotlib >=2.1,<3
+    # - numpy {{ numpy }}
     - {{ pin_compatible('numpy') }}
-    - python
-    - pyqt {{ pyqt }}
-    - qt {{ qt }}
+    # - python
+    - {{ pin_compatible('python') }}
 
 build:
   number: {{ os.environ["PKG_BUILDNUM"] }}

@@ -2,7 +2,7 @@
 python:
   - 3.4
   - 3.5
-  - 3.6
+  - 3.6 # [osx]
   # - 3.7 # no compatible pyqt4 packages
 
 # numpy nodes use the c api, so we need to build variants
@@ -14,3 +14,4 @@ python:
   # - 1.14
   # - 1.15
   # - 1.16
+

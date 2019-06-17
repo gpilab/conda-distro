@@ -17,7 +17,6 @@ mv !($UNIQUE_DIR) ./$UNIQUE_DIR/$TGT_NODE_LIB/
 
 # make the binaries
 cd $UNIQUE_DIR
-# rm core/spiral/spiral_PyMOD.cpp
 gpi_make --all --ignore-gpirc -r 3
 
 # install under the gpi package

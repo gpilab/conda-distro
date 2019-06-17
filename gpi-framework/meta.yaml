@@ -21,7 +21,7 @@ requirements:
     - pyopengl
     - python
     - pyqt {{ pyqt }}
-    # - qt {{ qt }}
+    # - qt {{ qt }} should be provided by qt and locked to same version
     - sip
     - qimage2ndarray
 

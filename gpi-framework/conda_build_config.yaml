@@ -16,12 +16,3 @@ python:
 pyqt:
   - 4.*
   # - 5.*
-
-qt:
-  - 4.*
-  # - 5.*
-
-# require pyqt and qt to be the same version
-zip_keys:
-  - pyqt
-  - qt

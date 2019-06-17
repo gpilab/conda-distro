@@ -17,6 +17,9 @@ mv !($UNIQUE_DIR) ./$UNIQUE_DIR/$TGT_NODE_LIB/
 
 # make the binaries
 cd $UNIQUE_DIR
+echo "****************"
+conda list
+echo "****************"
 gpi_make --all --ignore-gpirc -r 3
 
 # install under the gpi package

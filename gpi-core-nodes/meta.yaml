@@ -1,4 +1,5 @@
 {% set version = "1.0.6" %}
+
 package:
   name: gpi-core-nodes
   version: {{ version }}
@@ -8,7 +9,7 @@ source:
   git_url: https://github.com/gpilab/core-nodes.git
 
 requirements:
-  host:
+  build:
     - gpi
     - eigen =3
     - fftw

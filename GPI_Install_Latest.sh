@@ -47,7 +47,7 @@ while getopts "h32c:" opt; do
       ;;
     c)
       CHANNEL=$OPTARG
-      echo "Using channel $CHANNEL ." >&2 
+      echo "Using channel $CHANNEL ." >&2
       ;;
     h)
       help >&2
@@ -67,9 +67,9 @@ fi
 
 # check for root
 if [ "$(id -u)" == "0" ]; then
-    echo -n " 
+    echo -n "
     It looks like you are attempting to install GPI as root or sudo. While
-    this is possible, it is recommended that you install GPI under your 
+    this is possible, it is recommended that you install GPI under your
     home directory.
 
     Press ENTER to continue or CTRL-c to quit.
@@ -130,9 +130,9 @@ install ()
     conda activate gpi
 
     # add conda-forge and gpi channels
-    # TODO: consider channel priority
-    conda config --add channels conda-forge
-    conda config --add channels gpi
+    # priority: defaults > conda-forge > gpi
+    conda config --append channels conda-forge
+    conda config --append channels gpi
 
     # Install Conda Packages
     # 1. First install the python version.
@@ -141,11 +141,11 @@ install ()
     # 3. Update and install all deps.
     echo "Installing the GPI packages..."
     # get a base intall of python
-    $CONDA install -y python
-    $CONDA install -y gpi-core-nodes
+    # $CONDA install -y python
+    $CONDA install -y gpi gpi-core-nodes
 
     echo "Removing package files..."
-    $CONDA clean -t -i -p -l -y 
+    $CONDA clean -t -i -p -l -y
 
     # Clean up the downloaded files
     echo "Removing tmp files..."
@@ -167,18 +167,16 @@ then
     echo "    \$ conda activate gpi"
     echo "    \$ gpi"
     echo " "
-    echo "To enable 'conda activate' (if you're using bash),"
-    echo "add this line to the end of your .bashrc file:"
-    echo " "
-    echo ". $MINICONDA_PATH/etc/profile.d/conda.sh"
-    echo " "
-    read -p "Would you like to do this now? [Y/n]" -n 1 -r APPEND_BASHRC
+    echo "Run 'conda init' to enable 'conda activate' in your shell."
+    echo "Would you like to do this now?"
+    read -p "Would you like to do this now? [Y/n]" -n 1 -r CONDA_INIT
     echo
-    APPEND_BASHRC=${APPEND_BASHRC:-Y}
-    if [[ $APPEND_BASHRC =~ ^[Yy]$ ]]
+    CONDA_INIT=${CONDA_INIT:-Y}
+    if [[ $CONDA_INIT =~ ^[Yy]$ ]]
     then
-        echo ". $MINICONDA_PATH/etc/profile.d/conda.sh" >> ~/.bashrc
-	echo "Launch a new terminal for this to take effect."
+        # echo ". $MINICONDA_PATH/etc/profile.d/conda.sh" >> ~/.bashrc
+        $MINICONDA_PATH/condabin/conda init
+        echo "Launch a new terminal for this to take effect."
     fi
     echo " "
 else

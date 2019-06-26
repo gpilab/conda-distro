@@ -133,6 +133,8 @@ install ()
     # priority: defaults > conda-forge > gpi
     conda config --append channels conda-forge
     conda config --append channels gpi
+    # restore anaconda free channel for qt4 as of conda 4.7
+    conda config --set restore_free_channel true
 
     # Install Conda Packages
     # 1. First install the python version.

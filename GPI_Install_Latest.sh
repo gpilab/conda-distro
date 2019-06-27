@@ -170,7 +170,6 @@ then
     echo "    \$ gpi"
     echo " "
     echo "Run 'conda init' to enable 'conda activate' in your shell."
-    echo "Would you like to do this now?"
     read -p "Would you like to do this now? [Y/n]" -n 1 -r CONDA_INIT
     echo
     CONDA_INIT=${CONDA_INIT:-Y}

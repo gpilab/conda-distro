@@ -17,19 +17,27 @@ help ()
     echo "                         - - - - - - - - -                          "
     echo " "
     echo "usage: $0 [options] [path]"
-    echo "    -3    install the python 3.5 stack (default)"
-    echo "    -2    install the python 2.7 stack"
+    echo "    -3    install the python 3.7 stack (default)"
     echo "    -h    this help"
     echo " "
     echo "    Example: $0 ~/gpi_stack"
     echo " "
     echo "Alternatively, if you already have the conda package manager from a"
     echo "previous Anaconda or Miniconda installation, you can install GPI"
-    echo "into a Python 3 environment with the following commands:"
+    echo "into a Python 3.6+ environment with the following commands:"
     echo " "
-    echo "    ~$ conda create -n gpi python=3"
+    echo "    ~$ conda create -n gpi python=3.x"
     echo "    ~$ conda activate gpi"
-    echo "    ~$ conda install -c conda-forge -c gpi gpi gpi-core-nodes"
+    echo "    ~$ conda install -c conda-forge --strict-channel-priority gpi gpi_core"
+    echo " "
+    echo "Note that the --strict-channel-priority flag is not always required,"
+    echo "but is now recommended in the conda-forge ecosystem. You can add    "
+    echo "conda-forge and make strict priority the default by running:
+    echo " "
+    echo "    -$ conda config --add channels conda-forge:"
+    echo "    -$ conda config --set channel_priority strict"
+    echo "For more details see:"
+    echo "    https://conda-forge.org/docs/user/tipsandtricks.html"
     exit 1
 }
 
@@ -129,12 +137,11 @@ install ()
     conda create -n gpi -y
     conda activate gpi
 
-    # add conda-forge and gpi channels
-    # priority: defaults > conda-forge > gpi
-    conda config --append channels conda-forge
-    conda config --append channels gpi
-    # restore anaconda free channel for qt4 as of conda 4.7
-    conda config --set restore_free_channel true
+    # add conda-forge channel
+    # priority: conda-forge > defaults
+    conda config --add channels conda-forge
+    # Set channel priority to strict per conda-forge recommendation
+    conda config --set channel_priority strict
 
     # Install Conda Packages
     # 1. First install the python version.
@@ -144,7 +151,7 @@ install ()
     echo "Installing the GPI packages..."
     # get a base intall of python
     # $CONDA install -y python
-    $CONDA install -y gpi gpi-core-nodes
+    $CONDA install -y gpi gpi_core
 
     echo "Removing package files..."
     $CONDA clean -t -i -p -l -y

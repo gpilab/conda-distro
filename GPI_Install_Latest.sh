@@ -2,7 +2,8 @@
 # Build the GPI-MiniConda Stack for python 3 (or 2).
 
 # default options
-PYTHON_VER=3
+PYTHON_VER=3.7
+QT_VER=5.9
 MINICONDA_NAME=Miniconda3
 
 help ()
@@ -17,8 +18,11 @@ help ()
     echo "                         - - - - - - - - -                          "
     echo " "
     echo "usage: $0 [options] [path]"
-    echo "    -3    install the python 3.7 stack (default)"
-    echo "    -h    this help"
+    echo "    -p             specify python version (36 or 37 - default is 3.7)"
+    echo "    -q             specify qt version (56 or 59 - default is 5.9)"
+    echo "    -c <channel>   specify a different anaconda channel"
+    echo "                     (for, e.g., testing custom builds)"
+    echo "    -h             display this help"
     echo " "
     echo "    Example: $0 ~/gpi_stack"
     echo " "
@@ -31,27 +35,39 @@ help ()
     echo "    ~$ conda install -c conda-forge --strict-channel-priority gpi gpi_core"
     echo " "
     echo "Note that the --strict-channel-priority flag is not always required,"
-    echo "but is now recommended in the conda-forge ecosystem. You can add    "
-    echo "conda-forge and make strict priority the default by running:
+    echo "but is now recommended in the conda-forge ecosystem (and will be the"
+    echo "default if this script installs miniconda for you). You can add    "
+    echo "conda-forge and set strict priority for an existing install with:        "
     echo " "
     echo "    -$ conda config --add channels conda-forge:"
     echo "    -$ conda config --set channel_priority strict"
+    echo " "
     echo "For more details see:"
     echo "    https://conda-forge.org/docs/user/tipsandtricks.html"
     exit 1
 }
 
 # user options
-while getopts "h32c:" opt; do
+while getopts ":p:q:c:h:" opt; do
   case $opt in
-    3)
-      PYTHON_VER=3
-      MINICONDA_NAME=Miniconda3
+    p)
+      PYTHON_VER=$OPTARG
+      if [ $PYTHON_VER != "3.6" ] && [ $PYTHON_VER != "3.7" ]
+      then
+        echo $PYTHON_VER
+        echo "Invalid python version passed. You specified $PYTHON_VER."
+        echo " Valid choices are 3.6 and 3.7."
+        exit 1
+      fi
       ;;
-    2)
-      echo "Sorry, the Python 2 GPI stack and installation is deprecated."
-      echo "Consider moving to Python 3 for GPI development." >&2
-      exit
+    q)
+      QT_VER=$OPTARG
+      if [ $QT_VER != "5.6" ] && [ $QT_VER != "5.9" ]
+      then
+        echo "Invalid Qt version passed. You specified $QT_VER."
+        echo " Valid choices are 5.6 and 5.9."
+        exit 1
+      fi
       ;;
     c)
       CHANNEL=$OPTARG
@@ -62,6 +78,9 @@ while getopts "h32c:" opt; do
       ;;
   esac
 done
+
+# Miniconda version is always 3 now.
+MINICONDA_NAME=Miniconda3
 
 # check for available commands
 if command -v wget >/dev/null 2>&1; then
@@ -134,8 +153,6 @@ install ()
     ./$MINICONDA_SCRIPT -b -p $MINICONDA_PATH
 
     . $MINICONDA_PATH/etc/profile.d/conda.sh
-    conda create -n gpi -y
-    conda activate gpi
 
     # add conda-forge channel
     # priority: conda-forge > defaults
@@ -143,16 +160,9 @@ install ()
     # Set channel priority to strict per conda-forge recommendation
     conda config --set channel_priority strict
 
-    # Install Conda Packages
-    # 1. First install the python version.
-    #   -this is needed to select the right one before gpi deps are determined
-    # 2. Install gpi with no-deps to ensure the latest is picked.
-    # 3. Update and install all deps.
-    echo "Installing the GPI packages..."
-    # get a base intall of python
-    # $CONDA install -y python
-    $CONDA install -y gpi gpi_core
-
+    # Create the new env with gpi, allowing python and pyqt to be set explicitly
+    $CONDA create -n gpi -y python=$PYTHON_VER pyqt=$QT_VER gpi_core
+    $CONDA activate gpi
     echo "Removing package files..."
     $CONDA clean -t -i -p -l -y
 

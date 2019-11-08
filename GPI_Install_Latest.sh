@@ -81,33 +81,19 @@ done
 
 # Prompt for an extra dependency if running Ubuntu within WSL
 if grep -q Microsoft /proc/version; then
-    dpkg -s python3-pyqt5.qtwebkit > /dev/null 2>&1
-    if [ $? -ne 0 ]
-    then
-      echo "GPI requires extra packages to run on WSL + Ubuntu"
-      echo "A required package (qtwebkit) was not found."
-      echo "Please run the following command first, then re-run this script:"
-      echo "sudo apt-get install python3-pyqt5.qtwebkit"
-      exit 1
-    fi
-    dpkg -s build-essential > /dev/null 2>&1
-    if [ $? -ne 0 ]
-    then
-      echo "GPI requires extra packages to run on WSL + Ubuntu"
-      echo "A required package (build-essential) was not found."
-      echo "Please run the following command first, then re-run this script:"
-      echo "sudo apt-get install build-essential"
-      exit 1
-    fi
-    dpkg -s ca-certificates > /dev/null 2>&1
-    if [ $? -ne 0 ]
-    then
-      echo "GPI requires extra packages to run on WSL + Ubuntu"
-      echo "A required package (ca-certificates) was not found."
-      echo "Please run the following command first, then re-run this script:"
-      echo "sudo apt-get install ca-certificates"
-      exit 1
-    fi
+  NEEDED_PKGS="python3-pyqt5.qtwebkit build-essential ca-certificates libgl1-mesa-glx libegl1-mesa libxrandr2 libxrandr2 libxss1 libxcursor1 libxcomposite1 libasound2 libxi6 libxtst6"
+  for pkg in $NEEDED_PKGS
+  do
+      dpkg -s $pkg > /dev/null 2>&1
+      if [ $? -ne 0 ]
+      then
+        echo "GPI requires extra packages to run on WSL + Ubuntu"
+        echo "A required package ($pkg) was not found, and others may be missing."
+        echo "Please run the following command, then re-run this script:"
+        echo "sudo apt-get install $NEEDED_PKGS"
+        exit 1
+      fi
+  done
 fi
 
 # Miniconda version is always 3 now.

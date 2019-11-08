@@ -84,9 +84,28 @@ if grep -q Microsoft /proc/version; then
     dpkg -s python3-pyqt5.qtwebkit > /dev/null 2>&1
     if [ $? -ne 0 ]
     then
-      echo "GPI requires an extra package to run on WSL + Ubuntu as of Nov. 2019"
+      echo "GPI requires extra packages to run on WSL + Ubuntu"
+      echo "A required package (qtwebkit) was not found."
       echo "Please run the following command first, then re-run this script:"
       echo "sudo apt-get install python3-pyqt5.qtwebkit"
+      exit 1
+    fi
+    dpkg -s build-essential > /dev/null 2>&1
+    if [ $? -ne 0 ]
+    then
+      echo "GPI requires extra packages to run on WSL + Ubuntu"
+      echo "A required package (build-essential) was not found."
+      echo "Please run the following command first, then re-run this script:"
+      echo "sudo apt-get install build-essential"
+      exit 1
+    fi
+    dpkg -s ca-certificates > /dev/null 2>&1
+    if [ $? -ne 0 ]
+    then
+      echo "GPI requires extra packages to run on WSL + Ubuntu"
+      echo "A required package (ca-certificates) was not found."
+      echo "Please run the following command first, then re-run this script:"
+      echo "sudo apt-get install ca-certificates"
       exit 1
     fi
 fi
@@ -100,7 +119,8 @@ if command -v wget >/dev/null 2>&1; then
 elif command -v curl >/dev/null 2>&1; then
     GET="curl -O -C - "
 else
-    echo "This script requires either wget or curl, aborting."
+    echo "This script requires either wget or curl."
+    echo "Please install one of these with yum, apt-get, etc., then re-run this script."
     exit 1
 fi
 

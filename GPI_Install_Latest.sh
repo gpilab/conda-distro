@@ -79,6 +79,23 @@ while getopts ":p:q:c:h:" opt; do
   esac
 done
 
+# Prompt for an extra dependency if running Ubuntu within WSL
+if grep -q Microsoft /proc/version; then
+  NEEDED_PKGS="python3-pyqt5.qtwebkit build-essential ca-certificates libgl1-mesa-glx libegl1-mesa libxrandr2 libxrandr2 libxss1 libxcursor1 libxcomposite1 libasound2 libxi6 libxtst6"
+  for pkg in $NEEDED_PKGS
+  do
+      dpkg -s $pkg > /dev/null 2>&1
+      if [ $? -ne 0 ]
+      then
+        echo "GPI requires extra packages to run on WSL + Ubuntu"
+        echo "A required package ($pkg) was not found, and others may be missing."
+        echo "Please run the following command, then re-run this script:"
+        echo "sudo apt-get install $NEEDED_PKGS"
+        exit 1
+      fi
+  done
+fi
+
 # Miniconda version is always 3 now.
 MINICONDA_NAME=Miniconda3
 
@@ -88,7 +105,8 @@ if command -v wget >/dev/null 2>&1; then
 elif command -v curl >/dev/null 2>&1; then
     GET="curl -O -C - "
 else
-    echo "This script requires either wget or curl, aborting."
+    echo "This script requires either wget or curl."
+    echo "Please install one of these with yum, apt-get, etc., then re-run this script."
     exit 1
 fi
 

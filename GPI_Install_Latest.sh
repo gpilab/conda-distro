@@ -79,6 +79,18 @@ while getopts ":p:q:c:h:" opt; do
   esac
 done
 
+# Prompt for an extra dependency if running Ubuntu within WSL
+if grep -q Microsoft /proc/version; then
+    dpkg -s python3-pyqt5.qtwebkit > /dev/null 2>&1
+    if [ $? -ne 0 ]
+    then
+      echo "GPI requires an extra package to run on WSL + Ubuntu as of Nov. 2019"
+      echo "Please run the following command first, then re-run this script:"
+      echo "sudo apt-get install python3-pyqt5.qtwebkit"
+      exit 1
+    fi
+fi
+
 # Miniconda version is always 3 now.
 MINICONDA_NAME=Miniconda3
 

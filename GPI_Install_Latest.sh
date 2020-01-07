@@ -205,7 +205,7 @@ install ()
 
     # add conda-forge channel
     # priority: conda-forge > defaults
-    $CONDA config --add channels danielborup conda-forge
+    $CONDA config --add channels conda-forge
     # Set channel priority to strict per conda-forge recommendation
     $CONDA config --set channel_priority strict
 

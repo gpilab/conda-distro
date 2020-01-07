@@ -75,12 +75,34 @@ if exist %MINICONDA_PATH%\envs\gpi (
   @echo ^|  GPI installation was successful!  ^|
   @echo  ------------------------------------
   @echo.
-  @echo To start GPI enter:
+  @echo To launch GPI from PowerShell, configure conda as follows:
+  @echo   1 - Open a new PowerShell window with elevated privileges by
+  @echo         right clicking and choosing "Run as administrator"
+  @echo       (Note: if you do not have admin privileges, you will
+  @echo         need to use the older "Command Prompt" method.
+  @echo         See below for instructions.)
+  @echo   2 - Run the following command:
+  @echo         %HOMEPATH%^> set-executionpolicy remotesigned
+  @echo   3 - Respond to the prompt with "Y" to confirm the changes
+  @echo   4 - Run the following command
+  @echo   	%HOMEPATH%^> conda init powershell
+  @echo	  5 - You can now activate GPI as described below from any
+  @echo		PowerShell window - admin privileges are not required.
   @echo.
-  @echo     %HOMEPATH%^> conda activate gpi
-  @echo     %HOMEPATH%^> gpi
+  @echo To launch GPI using "Command Prompt" (cmd.exe), setup requires 
+  @echo   running one command in a Command Prompt window:
+  @echo     %HOMEPATH%^> %CONDA% init
+  @echo   (you may also run this as "conda init" in PowerShell)
   @echo.
-  @echo Run "%CONDA% init" to enable "conda activate" in your shell.
+  @echo.
+  @echo In a new terminal window, you should see the conda environment
+  @echo   at the start of your command line. This indicates configuration
+  @echo   was successful. If this is the case, to start GPI, enter:
+  @echo.
+  @echo     (base) %HOMEPATH%^> conda activate gpi
+  @echo     (gpi) %HOMEPATH%^> gpi
+  @echo.
+  @echo   in whichever shell you have conda configured.
   @echo.
 ) else (
   @echo  ----------------------------"
@@ -89,12 +111,9 @@ if exist %MINICONDA_PATH%\envs\gpi (
   @echo removing %MINICONDA_PATH%
   RMDIR /S /Q %MINICONDA_PATH%
   @echo.
-  @echo Please try running the script again.
-  @echo.
   @echo Scroll up to see if you can spot the error.
-  @echo If you still have issues, copy the output of the
-  @echo installation command and report issues on the
-  @echo GitHub issue tracker:
+  @echo If you are unable to find the issue, copy the output of the
+  @echo installation command and include in a new Issue on GitHub:
   @echo https://github.com/gpilab/conda-distro/issues
 )
 goto :eof

@@ -237,13 +237,8 @@ if [ -e $MINICONDA_PATH/envs/gpi/bin/gpi ] || [ $OS == 0 ]; then
     echo "|  GPI installation was successful!  |"
     echo " ------------------------------------"
     echo " "
-    echo "To start GPI enter:"
-    echo " "
-    echo "    \$ conda activate gpi"
-    echo "    \$ gpi"
-    echo " "
-    echo "Run 'conda init' to enable 'conda activate' in your shell."
-    read -p "Would you like to do this now? [Y/n]" -n 1 -r CONDA_INIT
+    echo "You probably still need to configure conda in your shell"
+    read -p "Would you like this script to do this for you now? [Y/n]" -n 1 -r CONDA_INIT
     echo
     CONDA_INIT=${CONDA_INIT:-Y}
     if [[ $CONDA_INIT =~ ^[Yy]$ ]]
@@ -254,8 +249,14 @@ if [ -e $MINICONDA_PATH/envs/gpi/bin/gpi ] || [ $OS == 0 ]; then
             $MINICONDA_PATH/condabin/conda init
 	fi
         # echo ". $MINICONDA_PATH/etc/profile.d/conda.sh" >> ~/.bashrc
-        echo "Launch a new terminal for this to take effect."
     fi
+    echo " "
+    echo "If a new terminal window shows the conda environment at the"
+    echo "  start of your command line, conda has been configured"
+    echo "  successfully. If this is the case, to start GPI, enter:"
+    echo " "
+    echo     "(base) \$ conda activate gpi"
+    echo     "(gpi) \$ gpi"
     echo " "
 else
     echo " ----------------------------"

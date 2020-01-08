@@ -20,7 +20,7 @@ set MINICONDA_PATH=%~f1
 if not %MINICONDA_PATH:~-1%==\ SET MINICONDA_PATH=%MINICONDA_PATH%\
 set CONDA=%MINICONDA_PATH%Scripts\conda.exe
 for %%d in (%MINICONDA_PATH%..) do set PATHTOTHEPATH=%%~fd
-@echo Install Patch: %MINICONDA_PATH%
+@echo Install Path: %MINICONDA_PATH%
 @echo Install Dir: %PATHTOTHEPATH%
 @echo Conda Location: %CONDA%
 
@@ -35,7 +35,6 @@ if exist %MINICONDA_PATH% (
 )
 @echo Installing the GPI stack for python %PYTHON_VER% ...
 :: Install MiniConda
-@echo "Downloading and Installing MiniConda..."
 cd %PATHTOTHEPATH%
 set MINICONDA_WEB=https://repo.continuum.io/miniconda
 set MINICONDA_SCRIPT=%MINICONDA_NAME%-latest-Windows-x86_64.exe
@@ -48,10 +47,15 @@ mkdir %TMPDIR%
 cd %TMPDIR%
 
 :: Run install script
+@echo.
+@echo "Downloading MiniConda..."
 curl %MINICONDA_WEB%/%MINICONDA_SCRIPT% --output %MINICONDA_SCRIPT%
-@echo Installing...
+@echo.
+@echo Installing MiniConda...
 %MINICONDA_SCRIPT% /S /D=%MINICONDA_PATH%
 
+@echo.
+@echo Installing GPI and the gpi_core nodes...
 :: add conda-forge channel
 :: priority: conda-forge > defaults
 %CONDA% config --add channels conda-forge
@@ -60,17 +64,17 @@ curl %MINICONDA_WEB%/%MINICONDA_SCRIPT% --output %MINICONDA_SCRIPT%
 %CONDA% config --set channel_priority strict
 
 :: Create the new env with gpi, allowing python and pyqt to be set explicitly
-%CONDA% create -n gpi -y python=%PYTHON_VER% pyqt=%QT_VER% gpi=1.1.6
- 
+%CONDA% create -n gpi -y python=%PYTHON_VER% pyqt=%QT_VER% gpi_core
+
 @echo Removing package files...
-%CONDA% clean -t -i -p -l -y
+%CONDA% clean -tiply
 
 :: Clean up the downloaded files
 @echo Removing tmp files...
 cd %PATHTOTHEPATH%
 RMDIR /S /Q %TMPDIR%
 
-if exist %MINICONDA_PATH%\envs\gpi (
+if exist %MINICONDA_PATH%\envs\gpi\Scripts\gpi (
   @echo  ------------------------------------
   @echo ^|  GPI installation was successful!  ^|
   @echo  ------------------------------------
@@ -78,9 +82,9 @@ if exist %MINICONDA_PATH%\envs\gpi (
   @echo To launch GPI from PowerShell, configure conda as follows:
   @echo   1 - Open a new PowerShell window with elevated privileges by
   @echo         right clicking and choosing "Run as administrator"
-  @echo       (Note: if you do not have admin privileges, you will
+  @echo       ^(Note: if you do not have admin privileges, you will
   @echo         need to use the older "Command Prompt" method.
-  @echo         See below for instructions.)
+  @echo         See below for instructions.^)
   @echo   2 - Run the following command:
   @echo         %HOMEPATH%^> set-executionpolicy remotesigned
   @echo   3 - Respond to the prompt with "Y" to confirm the changes
@@ -89,20 +93,20 @@ if exist %MINICONDA_PATH%\envs\gpi (
   @echo	  5 - You can now activate GPI as described below from any
   @echo		PowerShell window - admin privileges are not required.
   @echo.
-  @echo To launch GPI using "Command Prompt" (cmd.exe), setup requires 
+  @echo To launch GPI using "Command Prompt" ^(cmd.exe^), setup requires 
   @echo   running one command in a Command Prompt window:
   @echo     %HOMEPATH%^> %CONDA% init
-  @echo   (you may also run this as "conda init" in PowerShell)
+  @echo   ^(you may also run this as "conda init" in PowerShell^)
   @echo.
   @echo.
-  @echo In a new terminal window, you should see the conda environment
-  @echo   at the start of your command line. This indicates configuration
-  @echo   was successful. If this is the case, to start GPI, enter:
+  @echo If configuration was successful you can run GPI by entering the
+  @echo   following commands:
   @echo.
-  @echo     (base) %HOMEPATH%^> conda activate gpi
-  @echo     (gpi) %HOMEPATH%^> gpi
+  @echo     ^(base^) %HOMEPATH%^> conda activate gpi
+  @echo     ^(gpi^) %HOMEPATH%^> gpi
   @echo.
-  @echo   in whichever shell you have conda configured.
+  @echo   in whichever shell you have conda configured. Note that "^(base^)"
+  @echo   will appear in any new PowerShell terminal, but not in cmd.exe. 
   @echo.
 ) else (
   @echo  ----------------------------"
@@ -132,27 +136,21 @@ goto :eof
 @echo   Install using the git-bash shell for specific version control.)
 @echo.
 @echo usage: %0 [options] [path]
-@echo     \P 3X           specify python version, omitting period
-@echo                       36 and 37 (default) supported
-@echo     \Q 5X           specify qt version, omitting period
-@echo                       56 or 59 (default) supported
-@echo     \C=^<channel^>   specify a different anaconda channel
-@echo                      (for, e.g., testing custom builds)
 @echo     \H             display this help
 @echo.
-@echo     Example: %0 %%HOMEPATH%%\gpi_stack
+@echo     Example ^(preferred location^): %0 %%HOMEPATH%%\gpi_stack
 @echo.
 @echo Alternatively, if you already have the conda package manager from a
 @echo previous Anaconda or Miniconda installation, you can install GPI
-@echo into a Python 3.6+ environment with the following commands:
+@echo into a new Python 3.6+ environment with the following commands:
 @echo.
 @echo     %HOMEPATH%^> conda create -n gpi python=3.x
 @echo     %HOMEPATH%^> conda activate gpi
-@echo     %HOMEPATH%^> conda install -c conda-forge --strict-channel-priority gpi gpi_core
+@echo     %HOMEPATH%^> conda install -c conda-forge --strict-channel-priority gpi_core
 @echo.
 @echo Note that the --strict-channel-priority flag is not always required,
-@echo but is now recommended in the conda-forge ecosystem (and will be the
-@echo default if this script installs miniconda for you). You can add    
+@echo but is now recommended in the conda-forge ecosystem ^(and will be the
+@echo default if this script installs miniconda for you^). You can add    
 @echo conda-forge and set strict priority for an existing install with:        
 @echo.
 @echo     %HOMEPATH%^> conda config --add channels conda-forge:

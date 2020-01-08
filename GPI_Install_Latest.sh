@@ -18,13 +18,11 @@ help ()
     echo "                         - - - - - - - - -                          "
     echo " "
     echo "usage: $0 [options] [path]"
-    echo "    -p             specify python version (3.6 or 3.7 - default is 3.7)"
-    echo "    -q             specify qt version (5.6 or 5.9 - default is 5.9)"
-    echo "    -c <channel>   specify a different anaconda channel"
-    echo "                     (for, e.g., testing custom builds)"
+    echo "    -p             specify python version: 3.6, 3.7 (defult), or 3.8"
+    echo "    -q             specify qt version: 5.6, 5.9 (default), or 5.12."
     echo "    -h             display this help"
     echo " "
-    echo "    Example: $0 ~/gpi_stack"
+    echo "    Example (preferred install location): $0 ~/gpi_stack"
     echo " "
     echo "Alternatively, if you already have the conda package manager from a"
     echo "previous Anaconda or Miniconda installation, you can install GPI"
@@ -48,11 +46,11 @@ help ()
 }
 
 # user options
-while getopts ":p:q:c:h:" opt; do
+while getopts ":p:q:h:" opt; do
   case $opt in
     p)
       PYTHON_VER=$OPTARG
-      if [ $PYTHON_VER != "3.6" ] && [ $PYTHON_VER != "3.7" ]
+      if [ $PYTHON_VER != "3.6" ] && [ $PYTHON_VER != "3.7" ] && [ $PYTHON_VER != "3.8" ]
       then
         echo $PYTHON_VER
         echo "Invalid python version passed. You specified $PYTHON_VER."
@@ -62,16 +60,13 @@ while getopts ":p:q:c:h:" opt; do
       ;;
     q)
       QT_VER=$OPTARG
-      if [ $QT_VER != "5.6" ] && [ $QT_VER != "5.9" ]
+      if [ $QT_VER != "5.6" ] && [ $QT_VER != "5.9" ] && [ $QT_VER != "5.12" ]
+
       then
         echo "Invalid Qt version passed. You specified $QT_VER."
         echo " Valid choices are 5.6 and 5.9."
         exit 1
       fi
-      ;;
-    c)
-      CHANNEL=$OPTARG
-      echo "Using channel $CHANNEL ." >&2
       ;;
     h)
       help >&2
@@ -167,7 +162,7 @@ fi
 echo "Installing the GPI stack for python $PYTHON_VER in $MINICONDA_PATH ..."
 
 # Install MiniConda -detect OS
-echo "Downloading and Installing MiniConda..."
+echo "Downloading MiniConda..."
 MINICONDA_WEB=https://repo.continuum.io/miniconda
 case "$OS" in
 0)
@@ -191,7 +186,8 @@ install ()
     # Run install script
     $GET $MINICONDA_WEB/$MINICONDA_SCRIPT
     chmod a+x $MINICONDA_SCRIPT
-
+    echo " "
+    echo "Installing MiniConda. This may take a minute or two..."
     case "$OS" in
     0)
 	./$MINICONDA_SCRIPT //S "/D=$MINICONDA_PATH_WIN"
@@ -203,6 +199,8 @@ install ()
 
     . $MINICONDA_PATH/etc/profile.d/conda.sh
 
+    echo " "
+    echo "Installing GPI and the gpi_core nodes..."
     # add conda-forge channel
     # priority: conda-forge > defaults
     $CONDA config --add channels conda-forge
@@ -210,18 +208,10 @@ install ()
     $CONDA config --set channel_priority strict
 
     # Create the new env with gpi, allowing python and pyqt to be set explicitly
-    case "$OS" in
-    0)
-	$CONDA create -n gpi -y python=$PYTHON_VER pyqt=$QT_VER gpi=1.1.6=py_1
-	;;
-    [1-2])
-        $CONDA create -n gpi -y python=$PYTHON_VER pyqt=$QT_VER gpi_core
-	$CONDA activate gpi
-	;;
-    esac
+    $CONDA create -n gpi -y python=$PYTHON_VER pyqt=$QT_VER gpi_core
 
     echo "Removing package files..."
-    $CONDA clean -t -i -p -l -y
+    $CONDA clean -tiply
 
     # Clean up the downloaded files
     echo "Removing tmp files..."
@@ -232,7 +222,15 @@ install ()
 # Run the installer
 install
 #
-if [ -e $MINICONDA_PATH/envs/gpi/bin/gpi ] || [ $OS == 0 ]; then
+case "$OS" in
+0)
+    RUN_FILE=$MINICONDA_PATH/envs/gpi/Scripts/gpi
+    ;;
+[1-2])
+    RUN_FILE=$MINICONDA_PATH/envs/gpi/bin/gpi
+    ;;
+esac
+if [ -e $RUN_FILE ]; then
     echo " ------------------------------------"
     echo "|  GPI installation was successful!  |"
     echo " ------------------------------------"

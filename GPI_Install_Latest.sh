@@ -18,13 +18,11 @@ help ()
     echo "                         - - - - - - - - -                          "
     echo " "
     echo "usage: $0 [options] [path]"
-    echo "    -p             specify python version (3.6 or 3.7 - default is 3.7)"
-    echo "    -q             specify qt version (5.6 or 5.9 - default is 5.9)"
-    echo "    -c <channel>   specify a different anaconda channel"
-    echo "                     (for, e.g., testing custom builds)"
+    echo "    -p             specify python version: 3.6, 3.7 (defult), or 3.8"
+    echo "    -q             specify qt version: 5.6, 5.9 (default), or 5.12."
     echo "    -h             display this help"
     echo " "
-    echo "    Example: $0 ~/gpi_stack"
+    echo "    Example (preferred install location): $0 ~/gpi_stack"
     echo " "
     echo "Alternatively, if you already have the conda package manager from a"
     echo "previous Anaconda or Miniconda installation, you can install GPI"
@@ -48,11 +46,11 @@ help ()
 }
 
 # user options
-while getopts ":p:q:c:h:" opt; do
+while getopts ":p:q:h:" opt; do
   case $opt in
     p)
       PYTHON_VER=$OPTARG
-      if [ $PYTHON_VER != "3.6" ] && [ $PYTHON_VER != "3.7" ]
+      if [ $PYTHON_VER != "3.6" ] && [ $PYTHON_VER != "3.7" ] && [ $PYTHON_VER != "3.8" ]
       then
         echo $PYTHON_VER
         echo "Invalid python version passed. You specified $PYTHON_VER."
@@ -62,16 +60,13 @@ while getopts ":p:q:c:h:" opt; do
       ;;
     q)
       QT_VER=$OPTARG
-      if [ $QT_VER != "5.6" ] && [ $QT_VER != "5.9" ]
+      if [ $QT_VER != "5.6" ] && [ $QT_VER != "5.9" ] && [ $QT_VER != "5.12" ]
+
       then
         echo "Invalid Qt version passed. You specified $QT_VER."
         echo " Valid choices are 5.6 and 5.9."
         exit 1
       fi
-      ;;
-    c)
-      CHANNEL=$OPTARG
-      echo "Using channel $CHANNEL ." >&2
       ;;
     h)
       help >&2
@@ -79,21 +74,33 @@ while getopts ":p:q:c:h:" opt; do
   esac
 done
 
+# Parse the OS
+if [ "$(expr substr $(uname -s) 1 10)" == "MINGW64_NT" ]; then
+    OS=0 #Windows
+elif [ "$(uname)" == "Darwin" ]; then
+    OS=1 #Mac OSX
+elif [ "$(uname)" == "Linux" ]; then
+    OS=2 #Linux
+else
+    OS=-1 #Invalid
+fi
+
 # Prompt for an extra dependency if running Ubuntu within WSL
-if grep -q Microsoft /proc/version; then
-  NEEDED_PKGS="python3-pyqt5.qtwebkit build-essential ca-certificates libgl1-mesa-glx libegl1-mesa libxrandr2 libxrandr2 libxss1 libxcursor1 libxcomposite1 libasound2 libxi6 libxtst6"
-  for pkg in $NEEDED_PKGS
-  do
-      dpkg -s $pkg > /dev/null 2>&1
-      if [ $? -ne 0 ]
-      then
-        echo "GPI requires extra packages to run on WSL + Ubuntu"
-        echo "A required package ($pkg) was not found, and others may be missing."
-        echo "Please run the following command, then re-run this script:"
-        echo "sudo apt-get install $NEEDED_PKGS"
-        exit 1
-      fi
-  done
+if [ $OS == 2 ]; then
+    if grep -q Microsoft /proc/version; then
+        NEEDED_PKGS="python3-pyqt5.qtwebkit build-essential ca-certificates libgl1-mesa-glx libegl1-mesa libxrandr2 libxrandr2 libxss1 libxcursor1 libxcomposite1 libasound2 libxi6 libxtst6"
+        for pkg in $NEEDED_PKGS
+        do
+            dpkg -s $pkg > /dev/null 2>&1
+            if [ $? -ne 0 ]; then
+                echo "GPI requires extra packages to run on WSL + Ubuntu"
+	        echo "A required package ($pkg) was not found, and others may be missing."
+        	echo "Please run the following command, then re-run this script:"
+	        echo "sudo apt-get install $NEEDED_PKGS"
+	        exit 1
+            fi
+        done
+    fi
 fi
 
 # Miniconda version is always 3 now.
@@ -125,7 +132,16 @@ fi
 # get user path
 shift $(($OPTIND - 1))
 MINICONDA_PATH=$1 # conda install location
-CONDA=$MINICONDA_PATH/bin/conda
+case "$OS" in
+0) 
+    MINICONDA_PATH_WIN=$(CYGPATH -w $MINICONDA_PATH)
+    CONDA=$MINICONDA_PATH\\Scripts\\conda.exe
+    ;;
+[1-2])
+    CONDA=$MINICONDA_PATH/bin/conda
+    ;;
+esac
+
 if [ -z "$MINICONDA_PATH" ]; then
     help
 fi
@@ -146,21 +162,23 @@ fi
 echo "Installing the GPI stack for python $PYTHON_VER in $MINICONDA_PATH ..."
 
 # Install MiniConda -detect OS
-echo "Downloading and Installing MiniConda..."
+echo "Downloading MiniConda..."
 MINICONDA_WEB=https://repo.continuum.io/miniconda
-MINICONDA_OSX=$MINICONDA_NAME-latest-MacOSX-x86_64.sh
-MINICONDA_LINUX=$MINICONDA_NAME-latest-Linux-x86_64.sh
-# OSX
-if [ "$(uname)" == "Darwin" ]; then
-    MINICONDA_SCRIPT=$MINICONDA_OSX
-fi
-# Linux
-if [ "$(uname)" == "Linux" ]; then
-    MINICONDA_SCRIPT=$MINICONDA_LINUX
-fi
+case "$OS" in
+0)
+    MINICONDA_SCRIPT=$MINICONDA_NAME-latest-Windows-x86_64.exe
+    ;;
+1)
+    MINICONDA_SCRIPT=$MINICONDA_NAME-latest-MacOSX-x86_64.sh
+    ;;
+2)
+    MINICONDA_SCRIPT=$MINICONDA_NAME-latest-Linux-x86_64.sh
+    ;;
+esac
 
 install ()
 {
+    
     # make a tmp working dir
     TMPDIR=`mktemp -d`
     cd $TMPDIR
@@ -168,21 +186,32 @@ install ()
     # Run install script
     $GET $MINICONDA_WEB/$MINICONDA_SCRIPT
     chmod a+x $MINICONDA_SCRIPT
-    ./$MINICONDA_SCRIPT -b -p $MINICONDA_PATH
+    echo " "
+    echo "Installing MiniConda. This may take a minute or two..."
+    case "$OS" in
+    0)
+	./$MINICONDA_SCRIPT //S "/D=$MINICONDA_PATH_WIN"
+	;;
+    [1-2])
+        ./$MINICONDA_SCRIPT -b -p $MINICONDA_PATH
+	;;
+    esac
 
     . $MINICONDA_PATH/etc/profile.d/conda.sh
 
+    echo " "
+    echo "Installing GPI and the gpi_core nodes..."
     # add conda-forge channel
     # priority: conda-forge > defaults
-    conda config --add channels conda-forge
+    $CONDA config --add channels conda-forge
     # Set channel priority to strict per conda-forge recommendation
-    conda config --set channel_priority strict
+    $CONDA config --set channel_priority strict
 
     # Create the new env with gpi, allowing python and pyqt to be set explicitly
     $CONDA create -n gpi -y python=$PYTHON_VER pyqt=$QT_VER gpi_core
-    $CONDA activate gpi
+
     echo "Removing package files..."
-    $CONDA clean -t -i -p -l -y
+    $CONDA clean -tiply
 
     # Clean up the downloaded files
     echo "Removing tmp files..."
@@ -192,28 +221,40 @@ install ()
 
 # Run the installer
 install
-
-if [ -e $MINICONDA_PATH/envs/gpi/bin/gpi ]
-then
+#
+case "$OS" in
+0)
+    RUN_FILE=$MINICONDA_PATH/envs/gpi/Scripts/gpi
+    ;;
+[1-2])
+    RUN_FILE=$MINICONDA_PATH/envs/gpi/bin/gpi
+    ;;
+esac
+if [ -e $RUN_FILE ]; then
     echo " ------------------------------------"
     echo "|  GPI installation was successful!  |"
     echo " ------------------------------------"
     echo " "
-    echo "To start GPI enter:"
-    echo " "
-    echo "    \$ conda activate gpi"
-    echo "    \$ gpi"
-    echo " "
-    echo "Run 'conda init' to enable 'conda activate' in your shell."
-    read -p "Would you like to do this now? [Y/n]" -n 1 -r CONDA_INIT
+    echo "You probably still need to configure conda in your shell"
+    read -p "Would you like this script to do this for you now? [Y/n]" -n 1 -r CONDA_INIT
     echo
     CONDA_INIT=${CONDA_INIT:-Y}
     if [[ $CONDA_INIT =~ ^[Yy]$ ]]
     then
+	if [ $OS == 0 ]; then
+	    $MINICONDA_PATH/Scripts/conda.exe init bash
+        else
+            $MINICONDA_PATH/condabin/conda init
+	fi
         # echo ". $MINICONDA_PATH/etc/profile.d/conda.sh" >> ~/.bashrc
-        $MINICONDA_PATH/condabin/conda init
-        echo "Launch a new terminal for this to take effect."
     fi
+    echo " "
+    echo "If a new terminal window shows the conda environment at the"
+    echo "  start of your command line, conda has been configured"
+    echo "  successfully. If this is the case, to start GPI, enter:"
+    echo " "
+    echo     "(base) \$ conda activate gpi"
+    echo     "(gpi) \$ gpi"
     echo " "
 else
     echo " ----------------------------"

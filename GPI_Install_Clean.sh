@@ -110,6 +110,7 @@ if [ -e $LAUNCH_FILE ]; then
 #win echo 'export PATH="' + ${GPI_DIR} + ':${PATH}'
     echo '' >> $GPI_RUNFILE
     echo 'gpi' >> $GPI_RUNFILE
+    chmod a+x $GPI_RUNFILE
 else
     echo " ----------------------------"
     echo "|  GPI installation FAILED!  |"

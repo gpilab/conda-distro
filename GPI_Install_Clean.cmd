@@ -1,15 +1,15 @@
-setlocal
 @echo off
+setlocal
 
-# Miniconda version is always 3 now.
-MINICONDA_NAME=Miniconda3
+if [%1]==[] goto help
+if "%1"=="\H" goto help
 
 :: check for available commands
 WHERE curl >nul 2>nul
 if %ERRORLEVEL% neq 0 (
-	echo This script requires curl, but it wasn't found.
-        echo Please install curl, then re-run this script.
-	goto :eof
+  @echo This script requires curl, but it wasn't found.
+  @echo Please install curl, then re-run this script.
+  goto :eof
 )
 
 :: conda install location
@@ -31,7 +31,7 @@ if exist %MINICONDA_PATH% (
 :: Install MiniConda
 cd %PATHTOTHEPATH%
 set MINICONDA_WEB=https://repo.continuum.io/miniconda
-set MINICONDA_SCRIPT=%MINICONDA_NAME%-latest-Windows-x86_64.exe
+set MINICONDA_SCRIPT=Miniconda3-latest-Windows-x86_64.exe
 @echo %MINICONDA_SCRIPT%
 
 :: make a tmp working dir
@@ -50,38 +50,36 @@ curl %MINICONDA_WEB%/%MINICONDA_SCRIPT% --output %MINICONDA_SCRIPT%
 
 @echo.
 @echo Installing GPI and the gpi_core nodes...
+set PATH=%MINICONDA_PATH%\bin;%PATH%
+set PATH=%MINICONDA_PATH%\Scripts;%PATH%
+set PATH=%MINICONDA_PATH%\Library\bin;%PATH%
+set PATH=%MINICONDA_PATH%\Library\usr\bin;%PATH%
+set PATH=%MINICONDA_PATH%\Library\mingw-w64\bin;%PATH%
+set PATH=%MINICONDA_PATH%;%PATH%
 %CONDA% config --system --add channels conda-forge
-%CONDA% config --system --set --channel_priority strict
+%CONDA% config --system --set channel_priority strict
 %CONDA% create -y -n gpi
 %CONDA% install -y -n gpi gpi_core python=3.7 pyqt=5.9
-echo "Removing package files..."
-%CONDA% clean -n gpi -tiply
+
+@echo "Removing package files..."
+%CONDA% clean -tiply
 
 :: Clean up the downloaded files
 @echo Removing temporary files...
 cd %PATHTOTHEPATH%
 RMDIR /S /Q %TMPDIR%
 
-if exist %MINICONDA_PATH%\envs\gpi\Scripts\gpi (
+set GPI_LAUNCHER=%MINICONDA_PATH%envs\gpi\Scripts\gpi.cmd
+set GPI_SHORTCUT=%userprofile%\Desktop\gpi.lnk
+
+if exist %GPI_LAUNCHER% (
   @echo  ------------------------------------
   @echo ^|  GPI installation was successful!  ^|
   @echo  ------------------------------------
   @echo.
-  @echo Creating launch script "gpi_run" on Desktop.
-  set GPI_DIR=%MINICONDA_PATH%/envs/gpi
-  set GPI_RUNFILE=%HOMEPATH%/Desktop/gpi_run.cmd
+  @echo Creating launch shortcut on Desktop - this will prompt for Administrator access.
 
-  @echo @echo off > %GPI_RUNFILE%
-  @echo setlocal >> %GPI_RUNFILE%
-  @echo. >> %GPI_RUNFILE%
-  @echo set PATH=%GPI_DIR%\bin;%%PATH%% >> %GPI_RUNFILE%
-  @echo set PATH=%GPI_DIR%\Scripts;%%PATH%% >> %GPI_RUNFILE%
-  @echo set PATH=%GPI_DIR%\Library\bin;%%PATH%% >> %GPI_RUNFILE%
-  @echo set PATH=%GPI_DIR%\Library\usr\bin;%%PATH%% >> %GPI_RUNFILE%
-  @echo set PATH=%GPI_DIR%\Library\mingw-w64\bin;%%PATH%% >> %GPI_RUNFILE%
-  @echo set PATH=%GPI_DIR%;%%PATH%% >> %GPI_RUNFILE%
-  @echo. >> %GPI_RUNFILE%
-  @echo gpi >> %GPI_RUNFILE%
+  powershell -Command "start cmd -v RunAs -ArgumentList '/C mklink %GPI_SHORTCUT% %GPI_LAUNCHER%'"
 ) else (
   @echo  ----------------------------"
   @echo ^|  GPI installation FAILED!  ^|"
@@ -89,4 +87,23 @@ if exist %MINICONDA_PATH%\envs\gpi\Scripts\gpi (
   @echo removing %MINICONDA_PATH%
   RMDIR /S /Q %MINICONDA_PATH%
   @echo.
+  goto :eof
 )
+
+TIMEOUT /T 1 /NOBREAK >NUL
+
+if exist %GPI_SHORTCUT% (
+  @echo Shortcut created successfully at %GPI_SHORTCUT%
+) else (
+  @echo Error - could not create shortcut for GPI.
+  @echo Run GPI by executing %GPI_LAUNCHER%, or create a shortcut yourself.
+)
+goto :eof
+
+:help
+@echo.
+@echo Please include a path in which to install GPI when calling this script.
+@echo Recommended:
+@echo %userprofile%^> GPI_Install_Clean.cmd %userprofile%\gpi_stack
+goto :eof
+

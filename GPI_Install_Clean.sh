@@ -79,7 +79,7 @@ echo "Installing MiniConda. This may take a minute or two..."
 echo " "
 echo "Installing GPI and the gpi_core nodes..."
 $CONDA config --system --add channels conda-forge
-$CONDA config --system --set --channel_priority strict
+$CONDA config --system --set channel_priority strict
 $CONDA create -y -n gpi
 $CONDA install -y -n gpi gpi_core python=3.7 pyqt=5.9
 echo "Removing package files..."

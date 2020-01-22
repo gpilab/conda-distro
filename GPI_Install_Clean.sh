@@ -96,27 +96,20 @@ if [ -e $LAUNCH_FILE ]; then
     echo "|  GPI installation was successful!  |"
     echo " ------------------------------------"
     echo " "
-    echo "Creating launch script \"gpi_run\" on Desktop."
-    GPI_DIR="$MINICONDA_PATH/envs/gpi/"
-    GPI_RUNFILE="$HOME/Desktop/gpi_run.sh"
+    echo "Creating shortcut on Desktop."
+    
+    GPI_LAUNCHER="$MINICONDA_PATH/envs/gpi/bin/gpi"
+    GPI_SHORTCUT="$HOME/Desktop/gpi"
+    ln -s $GPI_LAUNCHER $GPI_SHORTCUT
 
-    echo '#!/bin/bash' > $GPI_RUNFILE
-    echo '' >> $GPI_RUNFILE
-    echo 'export PATH="' + ${GPI_DIR} + '/bin:${PATH}' >> $GPI_RUNFILE #always
-#win echo 'export PATH="' + ${GPI_DIR} + '/Scripts:${PATH}'
-#win echo 'export PATH="' + ${GPI_DIR} + '/Library/bin:${PATH}'
-#win echo 'export PATH="' + ${GPI_DIR} + '/Library/usr/bin:${PATH}'
-#win echo 'export PATH="' + ${GPI_DIR} + '/Library/mingw-w64/bin:${PATH}'
-#win echo 'export PATH="' + ${GPI_DIR} + ':${PATH}'
-    echo '' >> $GPI_RUNFILE
-    echo 'gpi' >> $GPI_RUNFILE
-    chmod a+x $GPI_RUNFILE
 else
     echo " ----------------------------"
     echo "|  GPI installation FAILED!  |"
     echo " ----------------------------"
     echo "removing broken installation"
+
     rm -rf $MINICONDA_PATH
+
     echo " "
     echo "Please try running the script again."
     echo " "

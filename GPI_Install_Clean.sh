@@ -97,10 +97,26 @@ if [ -e $LAUNCH_FILE ]; then
     echo " ------------------------------------"
     echo " "
     echo "Creating shortcut on Desktop."
-    
+
     GPI_LAUNCHER="$MINICONDA_PATH/envs/gpi/bin/gpi"
+    GPI_ICON="$MINICONDA_PATH/envs/gpi/lib/python3.7/site-packages/gpi/graphics/iclogo.png"
+
+case "$OS" in
+0)
     GPI_SHORTCUT="$HOME/Desktop/gpi"
     ln -s $GPI_LAUNCHER $GPI_SHORTCUT
+    ;;
+1)
+    DESKTOP_FILE="GPI.desktop"
+    GIT_BRANCH="clean_install"
+    DESKTOP_URL="https://raw.githubusercontent.com/gpilab/conda-distro/${GIT_BRANCH}/${DESKTOP_FILE}"
+    $GET $DESKTOP_URL
+    sed -i "s+exec_placeholdplaceholdplaceholdplaceholdplacehold+${GPI_LAUNCHER}+g" $DESKTOP_FILE
+    sed -i "s+icon_placeholdplaceholdplaceholdplaceholdplacehold+${GPI_ICON}+g" $DESKTOP_FILE
+    chmod a+x $DESKTOP_FILE
+    mv ${DESKTOP_FILE} ${HOME}/Desktop
+    ;;
+esac
 
 else
     echo " ----------------------------"

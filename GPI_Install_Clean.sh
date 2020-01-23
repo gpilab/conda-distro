@@ -100,15 +100,32 @@ if [ -e $LAUNCH_FILE ]; then
 
     GPI_LAUNCHER="$MINICONDA_PATH/envs/gpi/bin/gpi"
     GPI_ICON="$MINICONDA_PATH/envs/gpi/lib/python3.7/site-packages/gpi/graphics/iclogo.png"
+    GIT_BRANCH="clean_install"
 
 case "$OS" in
 0)
-    GPI_SHORTCUT="$HOME/Desktop/gpi"
-    ln -s $GPI_LAUNCHER $GPI_SHORTCUT
+    GPI_APP="/Applications/GPI.app"
+    CONTENTS="${GPI_APP}/Contents"
+    mkdir -p ${CONTENTS}/Contents/MacOS
+    mkdir ${CONTENTS}/Resources
+    
+    GIT_URL="https://raw.githubusercontent.com/gpilab/conda-distro/${GIT_BRANCH}"
+    $GET ${GIT_URL}/PkgInfo
+    mv PkgInfo $CONTENTS
+    
+    VERFILE="${MINICONDA_PATH}/envs/gpi/lib/python3.7/site-packages/gpi/VERSION"
+    VER=`sed -n -E 's/^.*([0-9]+\.[0-9]+\.[0-9]+)$/\1/p' $VERFILE`
+    $GET ${GIT_URL}/Info.plist
+    sed -i "s+placehold_infostring_placehold_infostring+GPI v${VER}+g" Info.plist
+    sed -i "s+placehold_version+${VER}+g" Info.plist
+    mv Info.plist $CONTENTS
+    
+    cp ${GPI_ICON} ${CONTENTS}/Resources
+    
+    ln -s $GPI_LAUNCHER ${CONTENTS}/MacOS/gpi
     ;;
 1)
     DESKTOP_FILE="GPI.desktop"
-    GIT_BRANCH="clean_install"
     DESKTOP_URL="https://raw.githubusercontent.com/gpilab/conda-distro/${GIT_BRANCH}/${DESKTOP_FILE}"
     $GET $DESKTOP_URL
     sed -i "s+exec_placeholdplaceholdplaceholdplaceholdplacehold+${GPI_LAUNCHER}+g" $DESKTOP_FILE

@@ -119,14 +119,18 @@ if [ -e $LAUNCH_FILE ]; then
       VERFILE="${MINICONDA_PATH}/envs/gpi/lib/python3.7/site-packages/gpi/VERSION"
       VER=`sed -n -E 's/^.*([0-9]+\.[0-9]+\.[0-9]+)$/\1/p' $VERFILE`
       $GET ${GIT_URL}/Info.plist
-      sed -i "s/placehold_infostring_placehold_infostring/GPI v${VER}/g" Info.plist
-      sed -i "s/placehold_version/${VER}/g" Info.plist
+      sed -i '.bak' "s/placehold_infostring_placehold_infostring/GPI v${VER}/g" Info.plist
+      sed -i '.bak' "s/placehold_version/${VER}/g" Info.plist
       mv Info.plist $CONTENTS
       
       GPI_ICON="$MINICONDA_PATH/envs/gpi/lib/python3.7/site-packages/gpi/graphics/gpi.icns"
       cp ${GPI_ICON} ${CONTENTS}/Resources/app.icns
       
-      ln -s $LAUNCH_FILE ${CONTENTS}/MacOS/gpi
+      LAUNCHER="${CONTENTS}/MacOS/gpi"
+      echo "#!/bin/bash" > $LAUNCHER
+      echo "" >> $LAUNCHER
+      echo "open -a Terminal.app $LAUNCH_FILE" >> $LAUNCHER
+      chmod a+x $LAUNCHER
       ;;
   1)
       GPI_ICON="$MINICONDA_PATH/envs/gpi/lib/python3.7/site-packages/gpi/graphics/iclogo.png"

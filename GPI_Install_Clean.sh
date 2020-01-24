@@ -42,7 +42,7 @@ if [ $# -eq 0 ]; then
     ;;
   1)
     echo "This script will install GPI into your home folder."
-    MINICONDA_PATH="~/gpi_stack" # conda install location
+    MINICONDA_PATH="${HOME}/gpi_stack" # conda install location
     ;;
   esac
 elif [ $# -eq 1 ]; then

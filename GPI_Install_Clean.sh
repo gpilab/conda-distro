@@ -18,26 +18,49 @@ if command -v wget >/dev/null 2>&1; then
 elif command -v curl >/dev/null 2>&1; then
     GET="curl -O -C - "
 else
-    echo "This script requires either wget or curl."
-    echo "Please install one of these with yum, apt-get, etc., then re-run this script."
+    echo "This script requires either wget or curl to download the latest files."
+    echo "Linux users may need to install one of these with yum, apt-get, etc., then re-run this script."
+    echo "MacOS should include curl by default."
     exit 1
 fi
 
-# get user path
-shift $(($OPTIND - 1))
-MINICONDA_PATH=$1 # conda install location
-CONDA=$MINICONDA_PATH/bin/conda
-# windows CONDA="./gpi_stack/scripts/conda.exe"
+case "$OS" in
+0)
+  # MacOS - pre-create GPI.app folder in case we want to put Miniconda there
+  GPI_APP="/Applications/GPI.app"
+  CONTENTS="${GPI_APP}/Contents"
+  mkdir -p ${CONTENTS}/MacOS
+  mkdir ${CONTENTS}/Resources
+  ;;
+esac
 
-if [ -z "$MINICONDA_PATH" ]; then
-    echo "An installation path is required as an argument."
-    echo "We recommend ~/gpi_stack, i.e., run the script again as follows:"
-    echo "\$ ./GPI_Install_Clean.sh ~/gpi_stack"
-    exit 1
+if [ $# -eq 0 ]; then
+  case "$OS" in
+  0)
+    echo "This script will install GPI into the Applications folder."
+    MINICONDA_PATH="${CONTENTS}/gpi_stack"
+    ;;
+  1)
+    echo "This script will install GPI into your home folder."
+    MINICONDA_PATH="~/gpi_stack" # conda install location
+    ;;
+  esac
+elif [ $# -eq 1 ]; then
+  shift $(($OPTIND - 1))
+  MINICONDA_PATH=$1 # conda install location
+  echo "This script will install GPI into ${MINICONDA_PATH}."
+else
+  echo "This script requires either no arguments (to use the default install path)"
+  echo "or one argument (for a user-specified install path)."
+  echo "Aborting."
+  exit 1
 fi
+
 PATHTOTHEPATH=`dirname $MINICONDA_PATH`
 if [ ! -d "$PATHTOTHEPATH" ]; then
-    echo "The parent path '$PATHTOTHEPATH' doesn't exit."
+    echo "The directory '$PATHTOTHEPATH' doesn't exit."
+    echo "This could mean you've moved your home folder (Linux) or Applications folder (Mac)."
+    echo "Please re-run this script with an argument for the desired install location."
     exit 1
 fi
 if [[ ! "$MINICONDA_PATH" = /* ]]; then
@@ -50,10 +73,14 @@ if [ -d "$MINICONDA_PATH" ]; then
     exit 1
 fi
 
-echo "Installing the GPI stack for python $PYTHON_VER in $MINICONDA_PATH ..."
+# Conda location
+CONDA="${MINICONDA_PATH}/bin/conda"
+
+echo "Installing support files..."
+TMPDIR=`mktemp -d`
+cd $TMPDIR
 
 # Install MiniConda -detect OS
-echo "Downloading MiniConda..."
 MINICONDA_WEB=https://repo.continuum.io/miniconda
 case "$OS" in
 0)
@@ -64,14 +91,9 @@ case "$OS" in
     ;;
 esac
 
-TMPDIR=`mktemp -d`
-cd $TMPDIR
-
 # Run install script
 $GET $MINICONDA_WEB/$MINICONDA_SCRIPT
 chmod a+x $MINICONDA_SCRIPT
-echo " "
-echo "Installing MiniConda. This may take a minute or two..."
 ./$MINICONDA_SCRIPT -b -p $MINICONDA_PATH
 
 # . $MINICONDA_PATH/etc/profile.d/conda.sh
@@ -82,58 +104,48 @@ $CONDA config --system --add channels conda-forge
 $CONDA config --system --set channel_priority strict
 $CONDA create -y -n gpi
 $CONDA install -y -n gpi gpi_core python=3.7 pyqt=5.9
-echo "Removing package files..."
-$CONDA clean -tiply
-
-# Clean up the downloaded files
-echo "Removing tmp files..."
-cd ..
-rm -rf $TMPDIR
 
 LAUNCH_FILE="$MINICONDA_PATH/envs/gpi/bin/gpi"
 if [ -e $LAUNCH_FILE ]; then
-    echo " ------------------------------------"
-    echo "|  GPI installation was successful!  |"
-    echo " ------------------------------------"
-    echo " "
-    echo "Creating shortcut on Desktop."
-
-    GPI_LAUNCHER="$MINICONDA_PATH/envs/gpi/bin/gpi"
-    GPI_ICON="$MINICONDA_PATH/envs/gpi/lib/python3.7/site-packages/gpi/graphics/iclogo.png"
+    echo "Configuring application shortcut"
     GIT_BRANCH="clean_install"
 
-case "$OS" in
-0)
-    GPI_APP="/Applications/GPI.app"
-    CONTENTS="${GPI_APP}/Contents"
-    mkdir -p ${CONTENTS}/Contents/MacOS
-    mkdir ${CONTENTS}/Resources
-    
-    GIT_URL="https://raw.githubusercontent.com/gpilab/conda-distro/${GIT_BRANCH}"
-    $GET ${GIT_URL}/PkgInfo
-    mv PkgInfo $CONTENTS
-    
-    VERFILE="${MINICONDA_PATH}/envs/gpi/lib/python3.7/site-packages/gpi/VERSION"
-    VER=`sed -n -E 's/^.*([0-9]+\.[0-9]+\.[0-9]+)$/\1/p' $VERFILE`
-    $GET ${GIT_URL}/Info.plist
-    sed -i "s+placehold_infostring_placehold_infostring+GPI v${VER}+g" Info.plist
-    sed -i "s+placehold_version+${VER}+g" Info.plist
-    mv Info.plist $CONTENTS
-    
-    cp ${GPI_ICON} ${CONTENTS}/Resources
-    
-    ln -s $GPI_LAUNCHER ${CONTENTS}/MacOS/gpi
-    ;;
-1)
-    DESKTOP_FILE="GPI.desktop"
-    DESKTOP_URL="https://raw.githubusercontent.com/gpilab/conda-distro/${GIT_BRANCH}/${DESKTOP_FILE}"
-    $GET $DESKTOP_URL
-    sed -i "s+exec_placeholdplaceholdplaceholdplaceholdplacehold+${GPI_LAUNCHER}+g" $DESKTOP_FILE
-    sed -i "s+icon_placeholdplaceholdplaceholdplaceholdplacehold+${GPI_ICON}+g" $DESKTOP_FILE
-    chmod a+x $DESKTOP_FILE
-    mv ${DESKTOP_FILE} ${HOME}/Desktop
-    ;;
-esac
+  case "$OS" in
+  0)
+      GIT_URL="https://raw.githubusercontent.com/gpilab/conda-distro/${GIT_BRANCH}"
+      $GET ${GIT_URL}/PkgInfo
+      mv PkgInfo $CONTENTS
+      
+      VERFILE="${MINICONDA_PATH}/envs/gpi/lib/python3.7/site-packages/gpi/VERSION"
+      VER=`sed -n -E 's/^.*([0-9]+\.[0-9]+\.[0-9]+)$/\1/p' $VERFILE`
+      $GET ${GIT_URL}/Info.plist
+      sed -i "s/placehold_infostring_placehold_infostring/GPI v${VER}/g" Info.plist
+      sed -i "s/placehold_version/${VER}/g" Info.plist
+      mv Info.plist $CONTENTS
+      
+      GPI_ICON="$MINICONDA_PATH/envs/gpi/lib/python3.7/site-packages/gpi/graphics/gpi.icns"
+      cp ${GPI_ICON} ${CONTENTS}/Resources/app.icns
+      
+      ln -s $LAUNCH_FILE ${CONTENTS}/MacOS/gpi
+      ;;
+  1)
+      GPI_ICON="$MINICONDA_PATH/envs/gpi/lib/python3.7/site-packages/gpi/graphics/iclogo.png"
+      echo "Creating desktop shortcut..."
+      DESKTOP_FILE="GPI.desktop"
+      DESKTOP_URL="https://raw.githubusercontent.com/gpilab/conda-distro/${GIT_BRANCH}/${DESKTOP_FILE}"
+      $GET $DESKTOP_URL
+      sed -i "s+exec_placeholdplaceholdplaceholdplaceholdplacehold+${LAUNCH_FILE}+g" $DESKTOP_FILE
+      sed -i "s+icon_placeholdplaceholdplaceholdplaceholdplacehold+${GPI_ICON}+g" $DESKTOP_FILE
+      chmod a+x $DESKTOP_FILE
+      mv ${DESKTOP_FILE} ${HOME}/Desktop
+      ;;
+  esac
+  echo " ------------------------------------"
+  echo "|  GPI installation was successful!  |"
+  echo " ------------------------------------"
+  echo " "
+  echo "Cleaning up"
+  $CONDA clean -tiply
 
 else
     echo " ----------------------------"
@@ -152,5 +164,10 @@ else
     echo "GitHub issue tracker:"
     echo "https://github.com/gpilab/conda-distro/issues"
 fi
+
+# Clean up the downloaded files
+echo "Removing tmp files..."
+cd ..
+rm -rf $TMPDIR
 
 exit

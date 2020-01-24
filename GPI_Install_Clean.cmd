@@ -9,25 +9,31 @@ if %ERRORLEVEL% neq 0 (
   goto :eof
 )
 
-if "%1"=="\H" goto help
-
 :: conda install location
-if [%1]==[] (
+if [%1]==[] goto :defaultpath
+
+if "%1"=="/H" goto :help
+goto :userpath
+
+:defaultpath
   set MINICONDA_PATH=%userprofile%\gpi_stack\
-) else (
+  goto :pathset
+
+:userpath
   set MINICONDA_PATH=%~f1
   if not %MINICONDA_PATH:~-1%==\ SET MINICONDA_PATH=%MINICONDA_PATH%\
-)
+
+:pathset
 set CONDA=%MINICONDA_PATH%Scripts\conda.exe
 for %%d in (%MINICONDA_PATH%..) do set PATHTOTHEPATH=%%~fd
 
 if not exist %PATHTOTHEPATH% (
-  @echo The desired installation folder, %PATHTOTHEPATH%, doesn't exist.
+  @echo The desired install directory, %PATHTOTHEPATH%, doesn't exist.
   goto :eof
 )
 :: See if the directory is already in use
 if exist %MINICONDA_PATH% (
-  @echo The installation directory %PATHTOTHEPATH% already exists, installation aborted.
+  @echo The directory to be created, %MINICONDA_PATH% already exists.
   @echo Installation aborted.
   goto :eof
 )
@@ -46,6 +52,9 @@ cd %TMPDIR%
 
 :: Run install script
 curl %MINICONDA_WEB%/%MINICONDA_SCRIPT% --output %MINICONDA_SCRIPT%
+
+@echo.
+@echo Installing - this may take a few minutes...
 %MINICONDA_SCRIPT% /AddToPath=0 /S /D=%MINICONDA_PATH%
 
 set PATH=%MINICONDA_PATH%\bin;%PATH%
@@ -99,8 +108,9 @@ goto :eof
 
 :help
 @echo.
-@echo Please include a path in which to install GPI when calling this script.
-@echo Recommended:
+@echo This script can be called with no argument (default install location)
+@echo or with one argument, specifying the install location, e.g.:
 @echo %userprofile%^> GPI_Install_Clean.cmd %userprofile%\gpi_stack
+@echo (this is the default location)
 goto :eof
 

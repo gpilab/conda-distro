@@ -103,7 +103,12 @@ echo "Installing GPI and the gpi_core nodes..."
 $CONDA config --system --add channels conda-forge
 $CONDA config --system --set channel_priority strict
 $CONDA create -y -n gpi
-$CONDA install -y -n gpi gpi_core python=3.7 pyqt=5.9
+$CONDA install -y -n gpi gpi_core conda python=3.7 pyqt=5.9
+
+# Move conda config file inside environment for updating later 
+CONFIGFILE="${MINICONDA_PATH}/.condarc"
+GPI_ENV="${MINICONDA_PATH}/envs/gpi"
+mv ${CONFIGFILE} ${GPI_ENV}
 
 LAUNCH_FILE="$MINICONDA_PATH/envs/gpi/bin/gpi"
 if [ -e $LAUNCH_FILE ]; then

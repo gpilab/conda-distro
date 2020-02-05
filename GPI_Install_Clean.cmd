@@ -66,7 +66,11 @@ set PATH=%MINICONDA_PATH%;%PATH%
 %CONDA% config --system --add channels conda-forge
 %CONDA% config --system --set channel_priority strict
 %CONDA% create -y -n gpi
-%CONDA% install -y -n gpi gpi_core python=3.7 pyqt=5.9
+%CONDA% install -y -n gpi gpi_core conda python=3.7 pyqt=5.9
+
+# Move conda config file inside environment for updating later 
+set GPI_ENV=%MINICONDA_PATH%\envs\gpi
+robocopy /mov %MINICONDA_PATH% %GPI_ENV% .condarc
 
 @echo "Cleaning Up..."
 %CONDA% clean -tiply

@@ -1,6 +1,0 @@
-# may want to at some point restrict Python version further
-python:
-  - 3.4
-  - 3.5
-  - 3.6 # [osx]
-  # - 3.7 # no compatible pyqt4 packages

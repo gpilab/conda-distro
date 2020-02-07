@@ -16,16 +16,16 @@ if "%1"=="/H" goto :help
 goto :userpath
 
 :defaultpath
-  set MINICONDA_PATH=%userprofile%\gpi_stack\
+  set MINICONDA_PATH=%userprofile%\AppData\Local\gpi_stack
   goto :pathset
 
 :userpath
   set MINICONDA_PATH=%~f1
-  if not %MINICONDA_PATH:~-1%==\ SET MINICONDA_PATH=%MINICONDA_PATH%\
+  if %MINICONDA_PATH:~-1%==\ SET MINICONDA_PATH=%MINICONDA_PATH:~0,-1%
 
 :pathset
-set CONDA=%MINICONDA_PATH%Scripts\conda.exe
-for %%d in (%MINICONDA_PATH%..) do set PATHTOTHEPATH=%%~fd
+set CONDA=%MINICONDA_PATH%\Scripts\conda.exe
+for %%d in (%MINICONDA_PATH%\..) do set PATHTOTHEPATH=%%~fd
 
 if not exist %PATHTOTHEPATH% (
   @echo The desired install directory, %PATHTOTHEPATH%, doesn't exist.
@@ -79,7 +79,7 @@ robocopy /mov %MINICONDA_PATH% %GPI_ENV% .condarc
 cd %PATHTOTHEPATH%
 RMDIR /S /Q %TMPDIR%
 
-set GPI_LAUNCHER=%MINICONDA_PATH%envs\gpi\Scripts\gpi.cmd
+set GPI_LAUNCHER=%MINICONDA_PATH%\envs\gpi\Scripts\gpi.cmd
 set GPI_SHORTCUT=%userprofile%\Desktop\gpi.lnk
 
 if exist %GPI_LAUNCHER% (
@@ -117,4 +117,3 @@ goto :eof
 @echo %userprofile%^> GPI_Install_Clean.cmd %userprofile%\gpi_stack
 @echo (this is the default location)
 goto :eof
-

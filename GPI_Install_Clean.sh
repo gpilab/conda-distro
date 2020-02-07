@@ -29,8 +29,9 @@ case "$OS" in
   # MacOS - pre-create GPI.app folder in case we want to put Miniconda there
   GPI_APP="/Applications/GPI.app"
   CONTENTS="${GPI_APP}/Contents"
+  RESOURCES="${CONTENTS}/Resources"
   mkdir -p ${CONTENTS}/MacOS
-  mkdir ${CONTENTS}/Resources
+  mkdir $RESOURCES
   ;;
 esac
 
@@ -38,11 +39,11 @@ if [ $# -eq 0 ]; then
   case "$OS" in
   0)
     echo "This script will install GPI into the Applications folder."
-    MINICONDA_PATH="${CONTENTS}/gpi_stack"
+    MINICONDA_PATH="${RESOURCES}/gpi_stack"
     ;;
   1)
-    echo "This script will install GPI into your home folder."
-    MINICONDA_PATH="${HOME}/gpi_stack" # conda install location
+    echo "This script will install GPI into the /opt folder."
+    MINICONDA_PATH="/opt/gpi_stack" # conda install location
     ;;
   esac
 elif [ $# -eq 1 ]; then
@@ -129,7 +130,7 @@ if [ -e $LAUNCH_FILE ]; then
       mv Info.plist $CONTENTS
       
       GPI_ICON="$MINICONDA_PATH/envs/gpi/lib/python3.7/site-packages/gpi/graphics/gpi.icns"
-      cp ${GPI_ICON} ${CONTENTS}/Resources/app.icns
+      cp ${GPI_ICON} ${RESOURCES}/app.icns
       
       LAUNCHER="${CONTENTS}/MacOS/gpi"
       echo "#!/bin/bash" > $LAUNCHER
